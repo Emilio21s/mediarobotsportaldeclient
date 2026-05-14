@@ -10,33 +10,89 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ServiciosSeoRouteImport } from './routes/servicios.seo'
+import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-high-level'
+import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
+import { Route as ServiciosAgentesIaRouteImport } from './routes/servicios.agentes-ia'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ServiciosSeoRoute = ServiciosSeoRouteImport.update({
+  id: '/servicios/seo',
+  path: '/servicios/seo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiciosGoHighLevelRoute = ServiciosGoHighLevelRouteImport.update({
+  id: '/servicios/go-high-level',
+  path: '/servicios/go-high-level',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiciosDisenoWebRoute = ServiciosDisenoWebRouteImport.update({
+  id: '/servicios/diseno-web',
+  path: '/servicios/diseno-web',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ServiciosAgentesIaRoute = ServiciosAgentesIaRouteImport.update({
+  id: '/servicios/agentes-ia',
+  path: '/servicios/agentes-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
+  '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
+  '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
+  '/servicios/seo': typeof ServiciosSeoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
+  '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
+  '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
+  '/servicios/seo': typeof ServiciosSeoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
+  '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
+  '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
+  '/servicios/seo': typeof ServiciosSeoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/servicios/agentes-ia'
+    | '/servicios/diseno-web'
+    | '/servicios/go-high-level'
+    | '/servicios/seo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/servicios/agentes-ia'
+    | '/servicios/diseno-web'
+    | '/servicios/go-high-level'
+    | '/servicios/seo'
+  id:
+    | '__root__'
+    | '/'
+    | '/servicios/agentes-ia'
+    | '/servicios/diseno-web'
+    | '/servicios/go-high-level'
+    | '/servicios/seo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ServiciosAgentesIaRoute: typeof ServiciosAgentesIaRoute
+  ServiciosDisenoWebRoute: typeof ServiciosDisenoWebRoute
+  ServiciosGoHighLevelRoute: typeof ServiciosGoHighLevelRoute
+  ServiciosSeoRoute: typeof ServiciosSeoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,12 +104,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/servicios/seo': {
+      id: '/servicios/seo'
+      path: '/servicios/seo'
+      fullPath: '/servicios/seo'
+      preLoaderRoute: typeof ServiciosSeoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servicios/go-high-level': {
+      id: '/servicios/go-high-level'
+      path: '/servicios/go-high-level'
+      fullPath: '/servicios/go-high-level'
+      preLoaderRoute: typeof ServiciosGoHighLevelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servicios/diseno-web': {
+      id: '/servicios/diseno-web'
+      path: '/servicios/diseno-web'
+      fullPath: '/servicios/diseno-web'
+      preLoaderRoute: typeof ServiciosDisenoWebRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/servicios/agentes-ia': {
+      id: '/servicios/agentes-ia'
+      path: '/servicios/agentes-ia'
+      fullPath: '/servicios/agentes-ia'
+      preLoaderRoute: typeof ServiciosAgentesIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ServiciosAgentesIaRoute: ServiciosAgentesIaRoute,
+  ServiciosDisenoWebRoute: ServiciosDisenoWebRoute,
+  ServiciosGoHighLevelRoute: ServiciosGoHighLevelRoute,
+  ServiciosSeoRoute: ServiciosSeoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
