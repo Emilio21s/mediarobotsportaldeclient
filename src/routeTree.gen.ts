@@ -9,12 +9,54 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResultadosRouteImport } from './routes/resultados'
+import { Route as RecursosRouteImport } from './routes/recursos'
+import { Route as ProximosPasosRouteImport } from './routes/proximos-pasos'
+import { Route as MiembrosRouteImport } from './routes/miembros'
+import { Route as EntregablesRouteImport } from './routes/entregables'
+import { Route as ComunicacionRouteImport } from './routes/comunicacion'
+import { Route as ActualizacionesRouteImport } from './routes/actualizaciones'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServiciosSeoRouteImport } from './routes/servicios.seo'
 import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-high-level'
 import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
 import { Route as ServiciosAgentesIaRouteImport } from './routes/servicios.agentes-ia'
 
+const ResultadosRoute = ResultadosRouteImport.update({
+  id: '/resultados',
+  path: '/resultados',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecursosRoute = RecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProximosPasosRoute = ProximosPasosRouteImport.update({
+  id: '/proximos-pasos',
+  path: '/proximos-pasos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MiembrosRoute = MiembrosRouteImport.update({
+  id: '/miembros',
+  path: '/miembros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EntregablesRoute = EntregablesRouteImport.update({
+  id: '/entregables',
+  path: '/entregables',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComunicacionRoute = ComunicacionRouteImport.update({
+  id: '/comunicacion',
+  path: '/comunicacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActualizacionesRoute = ActualizacionesRouteImport.update({
+  id: '/actualizaciones',
+  path: '/actualizaciones',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -43,6 +85,13 @@ const ServiciosAgentesIaRoute = ServiciosAgentesIaRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/actualizaciones': typeof ActualizacionesRoute
+  '/comunicacion': typeof ComunicacionRoute
+  '/entregables': typeof EntregablesRoute
+  '/miembros': typeof MiembrosRoute
+  '/proximos-pasos': typeof ProximosPasosRoute
+  '/recursos': typeof RecursosRoute
+  '/resultados': typeof ResultadosRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -50,6 +99,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/actualizaciones': typeof ActualizacionesRoute
+  '/comunicacion': typeof ComunicacionRoute
+  '/entregables': typeof EntregablesRoute
+  '/miembros': typeof MiembrosRoute
+  '/proximos-pasos': typeof ProximosPasosRoute
+  '/recursos': typeof RecursosRoute
+  '/resultados': typeof ResultadosRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -58,6 +114,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/actualizaciones': typeof ActualizacionesRoute
+  '/comunicacion': typeof ComunicacionRoute
+  '/entregables': typeof EntregablesRoute
+  '/miembros': typeof MiembrosRoute
+  '/proximos-pasos': typeof ProximosPasosRoute
+  '/recursos': typeof RecursosRoute
+  '/resultados': typeof ResultadosRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -67,6 +130,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/actualizaciones'
+    | '/comunicacion'
+    | '/entregables'
+    | '/miembros'
+    | '/proximos-pasos'
+    | '/recursos'
+    | '/resultados'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -74,6 +144,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/actualizaciones'
+    | '/comunicacion'
+    | '/entregables'
+    | '/miembros'
+    | '/proximos-pasos'
+    | '/recursos'
+    | '/resultados'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -81,6 +158,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/actualizaciones'
+    | '/comunicacion'
+    | '/entregables'
+    | '/miembros'
+    | '/proximos-pasos'
+    | '/recursos'
+    | '/resultados'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -89,6 +173,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActualizacionesRoute: typeof ActualizacionesRoute
+  ComunicacionRoute: typeof ComunicacionRoute
+  EntregablesRoute: typeof EntregablesRoute
+  MiembrosRoute: typeof MiembrosRoute
+  ProximosPasosRoute: typeof ProximosPasosRoute
+  RecursosRoute: typeof RecursosRoute
+  ResultadosRoute: typeof ResultadosRoute
   ServiciosAgentesIaRoute: typeof ServiciosAgentesIaRoute
   ServiciosDisenoWebRoute: typeof ServiciosDisenoWebRoute
   ServiciosGoHighLevelRoute: typeof ServiciosGoHighLevelRoute
@@ -97,6 +188,55 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/resultados': {
+      id: '/resultados'
+      path: '/resultados'
+      fullPath: '/resultados'
+      preLoaderRoute: typeof ResultadosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recursos': {
+      id: '/recursos'
+      path: '/recursos'
+      fullPath: '/recursos'
+      preLoaderRoute: typeof RecursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/proximos-pasos': {
+      id: '/proximos-pasos'
+      path: '/proximos-pasos'
+      fullPath: '/proximos-pasos'
+      preLoaderRoute: typeof ProximosPasosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/miembros': {
+      id: '/miembros'
+      path: '/miembros'
+      fullPath: '/miembros'
+      preLoaderRoute: typeof MiembrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/entregables': {
+      id: '/entregables'
+      path: '/entregables'
+      fullPath: '/entregables'
+      preLoaderRoute: typeof EntregablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comunicacion': {
+      id: '/comunicacion'
+      path: '/comunicacion'
+      fullPath: '/comunicacion'
+      preLoaderRoute: typeof ComunicacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/actualizaciones': {
+      id: '/actualizaciones'
+      path: '/actualizaciones'
+      fullPath: '/actualizaciones'
+      preLoaderRoute: typeof ActualizacionesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -137,6 +277,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActualizacionesRoute: ActualizacionesRoute,
+  ComunicacionRoute: ComunicacionRoute,
+  EntregablesRoute: EntregablesRoute,
+  MiembrosRoute: MiembrosRoute,
+  ProximosPasosRoute: ProximosPasosRoute,
+  RecursosRoute: RecursosRoute,
+  ResultadosRoute: ResultadosRoute,
   ServiciosAgentesIaRoute: ServiciosAgentesIaRoute,
   ServiciosDisenoWebRoute: ServiciosDisenoWebRoute,
   ServiciosGoHighLevelRoute: ServiciosGoHighLevelRoute,
