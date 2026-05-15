@@ -1,8 +1,9 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, FolderOpen, MessageCircle, Film, LayoutGrid } from "lucide-react";
+import { Home, FolderOpen, MessageCircle, Film, LayoutGrid, ListChecks } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useSession } from "@/hooks/useSession";
 
-const items: { to: string; icon: LucideIcon; label: string }[] = [
+const adminItems: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/", icon: Home, label: "Home" },
   { to: "/actualizaciones", icon: Film, label: "Looms" },
   { to: "/entregables", icon: FolderOpen, label: "Archivos" },
@@ -10,8 +11,17 @@ const items: { to: string; icon: LucideIcon; label: string }[] = [
   { to: "/miembros", icon: LayoutGrid, label: "Más" },
 ];
 
+const clientItems: { to: string; icon: LucideIcon; label: string }[] = [
+  { to: "/", icon: Home, label: "Home" },
+  { to: "/proximos-pasos", icon: ListChecks, label: "Tareas" },
+  { to: "/entregables", icon: FolderOpen, label: "Archivos" },
+  { to: "/comunicacion", icon: MessageCircle, label: "Chat" },
+];
+
 export function BottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { role } = useSession();
+  const items = role === "Agency_Admin" ? adminItems : clientItems;
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--sidebar-border)] bg-[var(--sidebar)] backdrop-blur md:hidden">
       <ul className="flex items-stretch justify-around px-1 pb-[env(safe-area-inset-bottom)] pt-1.5">

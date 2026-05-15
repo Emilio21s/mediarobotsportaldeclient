@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, MessageCircle, Play, FileText } from "lucide-react";
 import { portalData, getProximoPaso } from "@/data/portalData";
 import { useServiciosContratados } from "@/hooks/useServiciosContratados";
+import { useSession } from "@/hooks/useSession";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/")({
@@ -26,7 +27,8 @@ function StatCard({ label, value, hint }: { label: string; value: string | numbe
 }
 
 function Home() {
-  const { cliente, stats, looms } = portalData;
+  const { stats, looms } = portalData;
+  const { activeClinic } = useSession();
   const { servicios } = useServiciosContratados();
   const proximo = getProximoPaso();
   const ultimoLoom = looms[looms.length - 1];
@@ -37,12 +39,12 @@ function Home() {
   return (
     <>
       <PageHeader
-        eyebrow={`Paquete ${cliente.paquete}`}
-        title={`Buenas, ${cliente.nombreDoctor.replace("Dr. ", "Dr. ")}`}
-        description={`${cliente.nombreClinica} · Activo desde ${cliente.fechaInicio} · Asesor: ${cliente.asesor}`}
+        eyebrow={`Paquete ${activeClinic.paquete}`}
+        title={`Buenas, ${activeClinic.nombreDoctor}`}
+        description={`${activeClinic.nombreClinica} · Activo desde ${activeClinic.fechaInicio} · Asesor: ${activeClinic.asesor}`}
         right={
           <a
-            href={cliente.whatsappLink}
+            href={activeClinic.whatsappLink}
             target="_blank"
             rel="noopener"
             className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-[12px] font-semibold text-primary-foreground transition-opacity hover:opacity-90"
@@ -53,7 +55,7 @@ function Home() {
       />
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard label="Días activo" value={stats.diasActivo} hint="desde el kickoff" />
+        <StatCard label="Días activo" value={activeClinic.diasActivo} hint="desde el kickoff" />
         <StatCard label="Servicios" value={`${servicios.length}`} hint="contratados" />
         <StatCard label="Próxima entrega" value={stats.proximaEntrega} />
         <StatCard label="Próximo paso" value={proximo?.fecha ?? "—"} hint={proximo?.tipo} />

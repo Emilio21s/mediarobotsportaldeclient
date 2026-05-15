@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Check } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { portalData } from "@/data/portalData";
 import { useServiciosContratados } from "@/hooks/useServiciosContratados";
+import { useSession } from "@/hooks/useSession";
 
 export const Route = createFileRoute("/configuracion")({
   head: () => ({
@@ -16,12 +17,25 @@ export const Route = createFileRoute("/configuracion")({
 
 function ConfigPage() {
   const { contratados, toggle, setContratados } = useServiciosContratados();
+  const { role, activeClinic } = useSession();
+
+  if (role !== "Agency_Admin") {
+    return (
+      <div className="rounded-xl border border-border bg-card p-8 text-center">
+        <Lock className="mx-auto h-6 w-6 text-muted-foreground" />
+        <h2 className="mt-3 text-[15px] font-semibold text-foreground">Acceso restringido</h2>
+        <p className="mt-1 text-[12.5px] text-muted-foreground">
+          Esta sección solo está disponible para el equipo de Media Robots.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
       <PageHeader
         eyebrow="Panel admin"
-        title="Configuración del cliente"
+        title={`Configuración · ${activeClinic.nombreClinica}`}
         description="Activá los servicios que este cliente tiene contratados. La selección filtra el Home, la barra lateral y las páginas de servicio."
         right={
           <button
