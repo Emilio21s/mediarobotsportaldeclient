@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { portalData } from "@/data/portalData";
+import { useSession } from "@/hooks/useSession";
 import type { ServicioSlug, Servicio } from "@/types/portal";
 
-const STORAGE_KEY = "mr.serviciosContratados";
+const STORAGE_PREFIX = "mr.serviciosContratados.";
 const ALL_SLUGS: ServicioSlug[] = ["diseno-web", "seo", "go-high-level", "agentes-ia"];
 
 type Ctx = {
@@ -16,30 +17,26 @@ type Ctx = {
 const Context = createContext<Ctx | null>(null);
 
 export function ServiciosContratadosProvider({ children }: { children: ReactNode }) {
-  const [contratados, setState] = useState<ServicioSlug[]>(
-    portalData.cliente.serviciosContratados,
-  );
+  const { activeClinic } = useSession();
+  const storageKey = STORAGE_PREFIX + activeClinic.id;
+  const [contratados, setState] = useState<ServicioSlug[]>(activeClinic.serviciosContratados);
 
+  // Reload on clinic change.
   useEffect(() => {
+    let next = activeClinic.serviciosContratados;
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(storageKey);
       if (raw) {
         const parsed = JSON.parse(raw) as ServicioSlug[];
-        const valid = parsed.filter((s): s is ServicioSlug => ALL_SLUGS.includes(s));
-        setState(valid);
+        next = parsed.filter((s): s is ServicioSlug => ALL_SLUGS.includes(s));
       }
-    } catch {
-      /* ignore */
-    }
-  }, []);
+    } catch { /* noop */ }
+    setState(next);
+  }, [storageKey, activeClinic]);
 
   const setContratados = (next: ServicioSlug[]) => {
     setState(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      /* ignore */
-    }
+    try { localStorage.setItem(storageKey, JSON.stringify(next)); } catch { /* noop */ }
   };
   const toggle = (slug: ServicioSlug) => {
     setContratados(

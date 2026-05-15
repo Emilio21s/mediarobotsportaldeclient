@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Smartphone, Film, Calendar, Mail } from "lucide-react";
-import { portalData } from "@/data/portalData";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useSession } from "@/hooks/useSession";
 
 export const Route = createFileRoute("/comunicacion")({
   head: () => ({ meta: [{ title: "Comunicación · Media Robots" }, { name: "description", content: "Cómo y cuándo nos comunicamos contigo." }] }),
   component: Page,
 });
 
-const channels = [
-  { Icon: Smartphone, title: "WhatsApp directo", detail: "Respuesta en menos de 2 horas, lunes a viernes 8am–7pm.", action: "Abrir chat", href: portalData.cliente.whatsappLink },
-  { Icon: Film, title: "Loom semanal", detail: "Cada viernes antes de las 6pm recibís un video con los avances.", action: "Ver últimos videos", href: "/actualizaciones" },
-  { Icon: Calendar, title: "Call semanal de 20 min", detail: "Reunión opcional cada viernes. Reservá tu horario.", action: "Reservar call", href: "#" },
-  { Icon: Mail, title: "Email", detail: "emilio@mediarobots.com — para documentos formales y facturación.", action: "Escribir email", href: "mailto:emilio@mediarobots.com" },
-];
-
 function Page() {
+  const { activeClinic } = useSession();
+  const channels = [
+    { Icon: Smartphone, title: "WhatsApp directo", detail: "Respuesta en menos de 2 horas, lunes a viernes 8am–7pm.", action: "Abrir chat", href: activeClinic.whatsappLink },
+    { Icon: Film, title: "Loom semanal", detail: "Cada viernes antes de las 6pm recibís un video con los avances.", action: "Ver últimos videos", href: "/actualizaciones" },
+    { Icon: Calendar, title: "Call semanal de 20 min", detail: "Reunión opcional cada viernes. Reservá tu horario.", action: "Reservar call", href: "#" },
+    { Icon: Mail, title: "Email", detail: `${activeClinic.asesor.toLowerCase().replace(/\s+/g, ".")}@mediarobots.com — para documentos formales y facturación.`, action: "Escribir email", href: "mailto:emilio@mediarobots.com" },
+  ];
   return (
     <>
       <PageHeader eyebrow="Canales" title="Comunicación" description="Estos son los canales que usamos para mantenernos en contacto." />
