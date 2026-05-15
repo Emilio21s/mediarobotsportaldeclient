@@ -236,11 +236,11 @@ export const portalData: PortalData = {
   ],
 };
 
-export function getProximoPaso() {
-  const sorted = [...portalData.proximosPasos].sort((a, b) =>
-    a.fechaIso.localeCompare(b.fechaIso),
-  );
-  return sorted[0];
+export function getProximoPaso(clinicaId?: string) {
+  const items = clinicaId
+    ? portalData.proximosPasos.filter((p) => p.clinicaId === clinicaId)
+    : portalData.proximosPasos;
+  return [...items].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso))[0];
 }
 
 export function getServicio(slug: string) {
