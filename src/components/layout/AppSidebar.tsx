@@ -9,9 +9,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getProximoPaso } from "@/data/portalData";
 import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import { useSession } from "@/hooks/useSession";
+import { useClinicData } from "@/hooks/useClinicData";
 import type { ServicioSlug } from "@/types/portal";
 
 const SERVICE_ICONS: Record<ServicioSlug, LucideIcon> = {
@@ -74,7 +74,8 @@ function ClinicAvatar({ color, iniciales, size = 16 }: { color: string; iniciale
 export function AppSidebar() {
   const { role, setRole, clinicas, activeClinic, setActiveClinicId } = useSession();
   const { servicios } = useServiciosContratados();
-  const proximo = getProximoPaso();
+  const { proximosPasos } = useClinicData();
+  const proximo = [...proximosPasos].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso))[0];
   const isAdmin = role === "Agency_Admin";
 
   return (

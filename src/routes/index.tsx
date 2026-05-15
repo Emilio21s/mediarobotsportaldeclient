@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, MessageCircle, Play, FileText } from "lucide-react";
-import { portalData, getProximoPaso } from "@/data/portalData";
+import { getProximoPaso } from "@/data/portalData";
 import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import { useSession } from "@/hooks/useSession";
+import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/")({
@@ -27,12 +28,15 @@ function StatCard({ label, value, hint }: { label: string; value: string | numbe
 }
 
 function Home() {
-  const { stats, looms } = portalData;
   const { activeClinic } = useSession();
+  const { looms, entregables, proximosPasos } = useClinicData();
   const { servicios } = useServiciosContratados();
-  const proximo = getProximoPaso();
+  const proximo = getProximoPaso(activeClinic.id);
   const ultimoLoom = looms[looms.length - 1];
-  const ultimosEntregables = portalData.entregables.slice(-3).reverse();
+  const ultimosEntregables = entregables.slice(-3).reverse();
+  const proximaEntrega = [...proximosPasos]
+    .filter((p) => p.tipo === "hito" || p.tipo === "accion")
+    .sort((a, b) => a.fechaIso.localeCompare(b.fechaIso))[0]?.fecha ?? "—";
   const [mounted, setMounted] = useState(false);
   useEffect(() => { const t = setTimeout(() => setMounted(true), 50); return () => clearTimeout(t); }, []);
 
@@ -57,7 +61,7 @@ function Home() {
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Días activo" value={activeClinic.diasActivo} hint="desde el kickoff" />
         <StatCard label="Servicios" value={`${servicios.length}`} hint="contratados" />
-        <StatCard label="Próxima entrega" value={stats.proximaEntrega} />
+        <StatCard label="Próxima entrega" value={proximaEntrega} />
         <StatCard label="Próximo paso" value={proximo?.fecha ?? "—"} hint={proximo?.tipo} />
       </section>
 

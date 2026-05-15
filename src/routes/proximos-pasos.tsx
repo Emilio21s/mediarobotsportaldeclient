@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Calendar, Phone, Flag } from "lucide-react";
 import { portalData } from "@/data/portalData";
+import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/proximos-pasos")({
@@ -11,11 +12,15 @@ export const Route = createFileRoute("/proximos-pasos")({
 const ICONS = { accion: Flag, call: Phone, hito: Calendar } as const;
 
 function Page() {
-  const sorted = [...portalData.proximosPasos].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso));
+  const { proximosPasos } = useClinicData();
+  const sorted = [...proximosPasos].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso));
   return (
     <>
       <PageHeader eyebrow="Agenda" title="Próximos pasos" description="Lo que viene en las próximas semanas, ordenado por fecha." />
       <div className="rounded-xl border border-border bg-card">
+        {sorted.length === 0 ? (
+          <p className="p-6 text-center text-[12.5px] text-muted-foreground">No hay próximos pasos para esta clínica.</p>
+        ) : (
         <ul className="divide-y divide-border">
           {sorted.map((p) => {
             const Icon = ICONS[p.tipo];
@@ -36,6 +41,7 @@ function Page() {
             );
           })}
         </ul>
+        )}
       </div>
     </>
   );

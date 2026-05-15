@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FileText, Download } from "lucide-react";
-import { portalData } from "@/data/portalData";
+import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/entregables")({
@@ -9,11 +9,14 @@ export const Route = createFileRoute("/entregables")({
 });
 
 function Page() {
-  const { entregables } = portalData;
+  const { entregables } = useClinicData();
   return (
     <>
       <PageHeader eyebrow="Archivos" title="Centro de entregables" description="Versiones, estados y descargas de cada entregable." />
       <div className="overflow-hidden rounded-xl border border-border bg-card">
+        {entregables.length === 0 ? (
+          <p className="p-6 text-center text-[12.5px] text-muted-foreground">Aún no hay entregables para esta clínica.</p>
+        ) : (
         <ul className="divide-y divide-border">
           {entregables.map((e) => (
             <li key={e.id} className="flex items-center gap-4 p-4">
@@ -33,6 +36,7 @@ function Page() {
             </li>
           ))}
         </ul>
+        )}
       </div>
     </>
   );

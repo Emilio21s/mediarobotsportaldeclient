@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { portalData } from "@/data/portalData";
+import type { Miembro } from "@/types/portal";
+import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/miembros")({
@@ -7,7 +8,7 @@ export const Route = createFileRoute("/miembros")({
   component: Page,
 });
 
-function Group({ title, miembros }: { title: string; miembros: typeof portalData.miembros }) {
+function Group({ title, miembros }: { title: string; miembros: Miembro[] }) {
   return (
     <section className="mb-5 last:mb-0">
       <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
@@ -32,8 +33,9 @@ function Group({ title, miembros }: { title: string; miembros: typeof portalData
 }
 
 function Page() {
-  const mr = portalData.miembros.filter((m) => m.equipo === "media-robots");
-  const cli = portalData.miembros.filter((m) => m.equipo === "cliente");
+  const { miembros } = useClinicData();
+  const mr = miembros.filter((m) => m.equipo === "media-robots");
+  const cli = miembros.filter((m) => m.equipo === "cliente");
   return (
     <>
       <PageHeader eyebrow="Equipo" title="Miembros" description="Quienes trabajan en tu proyecto desde Media Robots y desde tu equipo." />
