@@ -1,10 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home, Palette, Search, Workflow, Bot, Film, ListChecks, FolderOpen,
-  BookMarked, MessageCircle, TrendingUp, Users, ChevronsUpDown, Plus, Send,
+  BookMarked, MessageCircle, TrendingUp, Users, ChevronsUpDown, Plus, Send, Settings,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { portalData, getProximoPaso, getServiciosContratados } from "@/data/portalData";
+import { portalData, getProximoPaso } from "@/data/portalData";
+import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import type { ServicioSlug } from "@/types/portal";
 
 const SERVICE_ICONS: Record<ServicioSlug, LucideIcon> = {
@@ -66,7 +67,7 @@ function PlusButton({ onClick }: { onClick?: (e: React.MouseEvent) => void }) {
 
 export function AppSidebar() {
   const { cliente } = portalData;
-  const servicios = getServiciosContratados();
+  const { servicios } = useServiciosContratados();
   const proximo = getProximoPaso();
 
   return (
@@ -148,6 +149,9 @@ export function AppSidebar() {
 
         <SectionLabel>Miembros</SectionLabel>
         <NavItem to="/miembros" icon={Users} label="Equipo" />
+
+        <SectionLabel>Administración</SectionLabel>
+        <NavItem to="/configuracion" icon={Settings} label="Configuración" />
       </nav>
 
       {/* Footer card */}

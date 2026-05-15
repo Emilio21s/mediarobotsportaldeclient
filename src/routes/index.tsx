@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight, MessageCircle, Play, FileText } from "lucide-react";
-import { portalData, getProximoPaso, getServiciosContratados } from "@/data/portalData";
+import { portalData, getProximoPaso } from "@/data/portalData";
+import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/")({
@@ -26,7 +27,7 @@ function StatCard({ label, value, hint }: { label: string; value: string | numbe
 
 function Home() {
   const { cliente, stats, looms } = portalData;
-  const servicios = getServiciosContratados();
+  const { servicios } = useServiciosContratados();
   const proximo = getProximoPaso();
   const ultimoLoom = looms[looms.length - 1];
   const ultimosEntregables = portalData.entregables.slice(-3).reverse();

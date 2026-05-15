@@ -14,6 +14,7 @@ import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as ProximosPasosRouteImport } from './routes/proximos-pasos'
 import { Route as MiembrosRouteImport } from './routes/miembros'
 import { Route as EntregablesRouteImport } from './routes/entregables'
+import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as ComunicacionRouteImport } from './routes/comunicacion'
 import { Route as ActualizacionesRouteImport } from './routes/actualizaciones'
 import { Route as IndexRouteImport } from './routes/index'
@@ -45,6 +46,11 @@ const MiembrosRoute = MiembrosRouteImport.update({
 const EntregablesRoute = EntregablesRouteImport.update({
   id: '/entregables',
   path: '/entregables',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionRoute = ConfiguracionRouteImport.update({
+  id: '/configuracion',
+  path: '/configuracion',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComunicacionRoute = ComunicacionRouteImport.update({
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
   '/comunicacion': typeof ComunicacionRoute
+  '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
   '/comunicacion': typeof ComunicacionRoute
+  '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
   '/comunicacion': typeof ComunicacionRoute
+  '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actualizaciones'
     | '/comunicacion'
+    | '/configuracion'
     | '/entregables'
     | '/miembros'
     | '/proximos-pasos'
@@ -146,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actualizaciones'
     | '/comunicacion'
+    | '/configuracion'
     | '/entregables'
     | '/miembros'
     | '/proximos-pasos'
@@ -160,6 +171,7 @@ export interface FileRouteTypes {
     | '/'
     | '/actualizaciones'
     | '/comunicacion'
+    | '/configuracion'
     | '/entregables'
     | '/miembros'
     | '/proximos-pasos'
@@ -175,6 +187,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActualizacionesRoute: typeof ActualizacionesRoute
   ComunicacionRoute: typeof ComunicacionRoute
+  ConfiguracionRoute: typeof ConfiguracionRoute
   EntregablesRoute: typeof EntregablesRoute
   MiembrosRoute: typeof MiembrosRoute
   ProximosPasosRoute: typeof ProximosPasosRoute
@@ -221,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: '/entregables'
       fullPath: '/entregables'
       preLoaderRoute: typeof EntregablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion': {
+      id: '/configuracion'
+      path: '/configuracion'
+      fullPath: '/configuracion'
+      preLoaderRoute: typeof ConfiguracionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comunicacion': {
@@ -279,6 +299,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActualizacionesRoute: ActualizacionesRoute,
   ComunicacionRoute: ComunicacionRoute,
+  ConfiguracionRoute: ConfiguracionRoute,
   EntregablesRoute: EntregablesRoute,
   MiembrosRoute: MiembrosRoute,
   ProximosPasosRoute: ProximosPasosRoute,
