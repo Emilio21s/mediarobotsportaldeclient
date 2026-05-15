@@ -9,6 +9,22 @@ export interface Cliente {
   serviciosContratados: ServicioSlug[];
 }
 
+export interface Clinica {
+  id: string;
+  nombreClinica: string;
+  nombreDoctor: string;
+  paquete: "Starter" | "Pro" | "Completo";
+  fechaInicio: string;
+  asesor: string;
+  whatsappLink: string;
+  diasActivo: number;
+  serviciosContratados: ServicioSlug[];
+  color: string;
+  iniciales: string;
+}
+
+export type Role = "Agency_Admin" | "Client_User";
+
 export type ServicioSlug = "diseno-web" | "seo" | "go-high-level" | "agentes-ia";
 
 export interface Stats {
@@ -105,4 +121,5 @@ export interface PortalData {
   recursos: Recurso[];
   resultados: Metrica[];
   miembros: Miembro[];
+  clinicas: Clinica[];
 }
