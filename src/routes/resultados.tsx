@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { portalData, getServicio } from "@/data/portalData";
+import { getServicio } from "@/data/portalData";
+import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/resultados")({
@@ -9,11 +10,17 @@ export const Route = createFileRoute("/resultados")({
 });
 
 function Page() {
+  const { resultados } = useClinicData();
   return (
     <>
       <PageHeader eyebrow="Métricas" title="Resultados" description="Indicadores clave por servicio. Actualizado cada semana." />
+      {resultados.length === 0 ? (
+        <p className="rounded-xl border border-border bg-card p-6 text-center text-[12.5px] text-muted-foreground">
+          Aún no hay métricas registradas para esta clínica.
+        </p>
+      ) : (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {portalData.resultados.map((m) => {
+        {resultados.map((m) => {
           const servicio = getServicio(m.servicioSlug);
           const Icon = m.delta.startsWith("+") ? TrendingUp : m.delta.startsWith("-") ? TrendingDown : Minus;
           return (
@@ -31,6 +38,7 @@ function Page() {
           );
         })}
       </div>
+      )}
     </>
   );
 }

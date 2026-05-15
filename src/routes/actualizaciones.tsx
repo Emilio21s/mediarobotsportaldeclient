@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Film } from "lucide-react";
-import { portalData } from "@/data/portalData";
+import { useClinicData } from "@/hooks/useClinicData";
 import { LoomCard } from "@/components/portal/LoomCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 
@@ -11,7 +11,7 @@ export const Route = createFileRoute("/actualizaciones")({
 });
 
 function Page() {
-  const { looms } = portalData;
+  const { looms } = useClinicData();
   const [expandedId, setExpandedId] = useState<number | null>(looms[looms.length - 1]?.id ?? null);
   const nextWeek = (looms[looms.length - 1]?.semana ?? 0) + 1;
   return (
