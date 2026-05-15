@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ServicePage, ServiceNotContracted } from "@/components/portal/ServicePage";
-import { portalData, getServicio } from "@/data/portalData";
+import { getServicio } from "@/data/portalData";
+import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 
 export const Route = createFileRoute("/servicios/diseno-web")({
   head: () => {
@@ -18,7 +19,8 @@ export const Route = createFileRoute("/servicios/diseno-web")({
 function Page() {
   const servicio = getServicio("diseno-web");
   if (!servicio) return null;
-  const contratado = portalData.cliente.serviciosContratados.includes("diseno-web");
+  const { isContratado } = useServiciosContratados();
+  const contratado = isContratado("diseno-web");
   if (!contratado) return <ServiceNotContracted nombre={servicio.nombre} />;
   return <ServicePage servicio={servicio} />;
 }
