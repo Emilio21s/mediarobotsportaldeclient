@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 import { AppShell } from "@/components/layout/AppShell";
 import { ServiciosContratadosProvider } from "@/hooks/useServiciosContratados";
 import { SessionProvider } from "@/hooks/useSession";
+import { TareasProvider } from "@/hooks/useTareas";
 
 function NotFoundComponent() {
   return (
@@ -124,7 +125,9 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <ServiciosContratadosProvider>
-          <AppShell />
+          <TareasProvider>
+            <AppShell />
+          </TareasProvider>
         </ServiciosContratadosProvider>
       </SessionProvider>
     </QueryClientProvider>
