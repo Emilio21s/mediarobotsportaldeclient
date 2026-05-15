@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
 import { Check, CircleDot, Circle, FileText, ExternalLink, Play } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { portalData } from "@/data/portalData";
 import type { Servicio } from "@/types/portal";
+import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export function ServicePage({ servicio }: { servicio: Servicio }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { const t = setTimeout(() => setMounted(true), 50); return () => clearTimeout(t); }, []);
 
-  const looms = portalData.looms.filter((l) => l.serviciosSlugs.includes(servicio.slug));
-  const entregables = portalData.entregables.filter((e) => e.servicioSlug === servicio.slug);
-  const pasos = portalData.proximosPasos.filter((p) => p.servicioSlug === servicio.slug);
-  const metricas = portalData.resultados.filter((m) => m.servicioSlug === servicio.slug);
+  const data = useClinicData();
+  const looms = data.looms.filter((l) => l.serviciosSlugs.includes(servicio.slug));
+  const entregables = data.entregables.filter((e) => e.servicioSlug === servicio.slug);
+  const pasos = data.proximosPasos.filter((p) => p.servicioSlug === servicio.slug);
+  const metricas = data.resultados.filter((m) => m.servicioSlug === servicio.slug);
 
   return (
     <>
