@@ -53,6 +53,7 @@ export interface Servicio {
 
 export interface Loom {
   id: number;
+  clinicaId: string;
   semana: number;
   fecha: string;
   titulo: string;
@@ -66,6 +67,7 @@ export interface Loom {
 
 export interface Paso {
   id: number;
+  clinicaId: string;
   fecha: string;
   fechaIso: string;
   texto: string;
@@ -75,6 +77,7 @@ export interface Paso {
 
 export interface Entregable {
   id: number;
+  clinicaId: string;
   nombre: string;
   servicio: string;
   servicioSlug: ServicioSlug;
@@ -86,6 +89,7 @@ export interface Entregable {
 
 export interface Recurso {
   id: number;
+  clinicaId: string;
   titulo: string;
   descripcion: string;
   tipo: "doc" | "link" | "credenciales";
@@ -94,6 +98,7 @@ export interface Recurso {
 
 export interface Metrica {
   id: number;
+  clinicaId: string;
   servicioSlug: ServicioSlug;
   label: string;
   valor: string;
@@ -103,6 +108,7 @@ export interface Metrica {
 
 export interface Miembro {
   id: number;
+  clinicaId: string;
   nombre: string;
   rol: string;
   equipo: "media-robots" | "cliente";
