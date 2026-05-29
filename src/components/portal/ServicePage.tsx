@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import type { Servicio } from "@/types/portal";
 import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { KanbanBoard } from "@/components/portal/KanbanBoard";
 
 export function ServicePage({ servicio }: { servicio: Servicio }) {
   const [mounted, setMounted] = useState(false);
@@ -155,6 +156,15 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           )}
         </section>
       </div>
+
+      {/* Kanban del servicio */}
+      <section className="mt-5 rounded-xl border border-border bg-card p-5">
+        <div className="mb-4 flex items-baseline justify-between">
+          <h2 className="text-[13px] font-semibold text-foreground">Tablero de tareas</h2>
+          <span className="text-[11px] text-muted-foreground">Tareas de {servicio.nombre}</span>
+        </div>
+        <KanbanBoard servicioSlug={servicio.slug} />
+      </section>
     </>
   );
 }

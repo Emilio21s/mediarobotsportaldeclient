@@ -19,6 +19,7 @@ export interface Tarea {
   prioridad: Prioridad;
   fechaEntrega: string; // YYYY-MM-DD
   columna: Columna;
+  servicioSlug?: string;
   createdBy: "agency" | "client";
   createdAt: string;
   comentarios: Comentario[];
@@ -42,24 +43,24 @@ const seed = (clinicaId: string): Tarea[] => {
   });
   if (clinicaId === "garcia") {
     return [
-      mk(1, { titulo: "Definir wireframe del sitio", prioridad: "alta", columna: "completado" }),
-      mk(2, { titulo: "Mockup visual home + servicios", prioridad: "alta", columna: "revision" }),
-      mk(3, { titulo: "Optimizar perfil de Google Business", prioridad: "media", columna: "progreso" }),
-      mk(4, { titulo: "Investigación de keywords locales", prioridad: "media", columna: "progreso" }),
-      mk(5, { titulo: "Setup pipeline GHL", prioridad: "baja", columna: "backlog" }),
-      mk(6, { titulo: "Redactar copy de la home", prioridad: "media", columna: "backlog" }),
+      mk(1, { titulo: "Definir wireframe del sitio", prioridad: "alta", columna: "completado", servicioSlug: "diseno-web" }),
+      mk(2, { titulo: "Mockup visual home + servicios", prioridad: "alta", columna: "revision", servicioSlug: "diseno-web" }),
+      mk(3, { titulo: "Optimizar perfil de Google Business", prioridad: "media", columna: "progreso", servicioSlug: "seo" }),
+      mk(4, { titulo: "Investigación de keywords locales", prioridad: "media", columna: "progreso", servicioSlug: "seo" }),
+      mk(5, { titulo: "Setup pipeline GHL", prioridad: "baja", columna: "backlog", servicioSlug: "go-high-level" }),
+      mk(6, { titulo: "Redactar copy de la home", prioridad: "media", columna: "backlog", servicioSlug: "diseno-web" }),
     ];
   }
   if (clinicaId === "sonrisas") {
     return [
-      mk(1, { titulo: "Ajustar guion del agente IA", prioridad: "alta", columna: "revision" }),
-      mk(2, { titulo: "Reporte SEO mensual", prioridad: "media", columna: "completado" }),
-      mk(3, { titulo: "Configurar campaña local", prioridad: "alta", columna: "progreso" }),
+      mk(1, { titulo: "Ajustar guion del agente IA", prioridad: "alta", columna: "revision", servicioSlug: "agentes-ia" }),
+      mk(2, { titulo: "Reporte SEO mensual", prioridad: "media", columna: "completado", servicioSlug: "seo" }),
+      mk(3, { titulo: "Configurar campaña local", prioridad: "alta", columna: "progreso", servicioSlug: "seo" }),
     ];
   }
   return [
-    mk(1, { titulo: "Brief de contenidos", prioridad: "alta", columna: "progreso" }),
-    mk(2, { titulo: "Logo y manual de marca", prioridad: "media", columna: "backlog" }),
+    mk(1, { titulo: "Brief de contenidos", prioridad: "alta", columna: "progreso", servicioSlug: "diseno-web" }),
+    mk(2, { titulo: "Logo y manual de marca", prioridad: "media", columna: "backlog", servicioSlug: "diseno-web" }),
   ];
 };
 
