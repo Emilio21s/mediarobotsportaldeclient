@@ -13,6 +13,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { ServiciosContratadosProvider } from "@/hooks/useServiciosContratados";
 import { SessionProvider } from "@/hooks/useSession";
 import { TareasProvider } from "@/hooks/useTareas";
+import { ServicioOverridesProvider } from "@/hooks/useServicioOverrides";
 
 function NotFoundComponent() {
   return (
@@ -126,7 +127,9 @@ function RootComponent() {
       <SessionProvider>
         <ServiciosContratadosProvider>
           <TareasProvider>
-            <AppShell />
+            <ServicioOverridesProvider>
+              <AppShell />
+            </ServicioOverridesProvider>
           </TareasProvider>
         </ServiciosContratadosProvider>
       </SessionProvider>
