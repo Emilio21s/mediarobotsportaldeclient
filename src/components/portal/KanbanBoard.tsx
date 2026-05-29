@@ -2,6 +2,7 @@ import { useState, type DragEvent } from "react";
 import { Plus, Trash2, MessageSquare, Calendar, GripVertical, X, Lock } from "lucide-react";
 import { useTareas, type Columna, type Prioridad, type Tarea } from "@/hooks/useTareas";
 import { useSession } from "@/hooks/useSession";
+import { portalData } from "@/data/portalData";
 import { Button } from "@/components/ui/button";
 
 const COLUMNAS: { id: Columna; label: string; accent: string }[] = [
@@ -25,7 +26,7 @@ function formatDate(iso: string) {
   }
 }
 
-export function KanbanBoard() {
+export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
   const { tareas, add, update, remove, move, addComment } = useTareas();
   const { role, activeClinic } = useSession();
   const isAdmin = role === "Agency_Admin";
@@ -33,6 +34,14 @@ export function KanbanBoard() {
   const [overCol, setOverCol] = useState<Columna | null>(null);
   const [openTask, setOpenTask] = useState<Tarea | null>(null);
   const [adding, setAdding] = useState(false);
+
+  // Servicios disponibles para la clínica activa
+  const serviciosClinica = portalData.servicios.filter((s) =>
+    activeClinic.serviciosContratados.includes(s.slug),
+  );
+  const scopedTareas = servicioSlug
+    ? tareas.filter((t) => t.servicioSlug === servicioSlug)
+    : tareas;
 
   const canMove = (t: Tarea, target: Columna): boolean => {
     if (isAdmin) return true;
@@ -85,7 +94,7 @@ export function KanbanBoard() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {COLUMNAS.map((col) => {
-          const items = tareas.filter((t) => t.columna === col.id);
+          const items = scopedTareas.filter((t) => t.columna === col.id);
           const isOver = overCol === col.id;
           return (
             <div
@@ -109,6 +118,7 @@ export function KanbanBoard() {
                 {items.map((t) => {
                   const prio = PRIO_STYLE[t.prioridad];
                   const draggable = canMove(t, col.id === "revision" ? "completado" : "revision") || isAdmin;
+                  const servicio = portalData.servicios.find((s) => s.slug === t.servicioSlug);
                   return (
                     <div
                       key={t.id}
@@ -136,6 +146,14 @@ export function KanbanBoard() {
                       <h4 className="mt-2 text-[13px] font-medium leading-snug text-foreground">
                         {t.titulo}
                       </h4>
+                      {servicio && (
+                        <div className="mt-2 inline-flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full" style={{ background: servicio.color }} />
+                          <span className="text-[10.5px] font-medium" style={{ color: servicio.color }}>
+                            {servicio.nombre}
+                          </span>
+                        </div>
+                      )}
                       <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
                         <span className="inline-flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
@@ -177,6 +195,8 @@ export function KanbanBoard() {
         <TaskModal
           task={liveOpenTask}
           isAdmin={isAdmin}
+          servicios={serviciosClinica}
+          defaultServicioSlug={servicioSlug}
           authorName={isAdmin ? "Agencia" : activeClinic.nombreDoctor}
           onClose={() => { setAdding(false); setOpenTask(null); }}
           onCreate={(data) => { add({ ...data, columna: "backlog", createdBy: isAdmin ? "agency" : "client" }); setAdding(false); }}
