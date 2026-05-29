@@ -4,6 +4,7 @@ import { Link } from "@tanstack/react-router";
 import type { Servicio } from "@/types/portal";
 import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { KanbanBoard } from "@/components/portal/KanbanBoard";
 
 export function ServicePage({ servicio }: { servicio: Servicio }) {
   const [mounted, setMounted] = useState(false);
