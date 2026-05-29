@@ -1,20 +1,73 @@
-import { useEffect, useState } from "react";
-import { Check, CircleDot, Circle, FileText, ExternalLink, Play } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Check, CircleDot, Circle, FileText, ExternalLink, Play, Pencil, Plus, Trash2, X, RotateCcw } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { Servicio } from "@/types/portal";
 import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { KanbanBoard } from "@/components/portal/KanbanBoard";
+import { useTareas } from "@/hooks/useTareas";
+import { useSession } from "@/hooks/useSession";
+import { useServicioOverrides, type PasoLocal } from "@/hooks/useServicioOverrides";
+import { Button } from "@/components/ui/button";
+
+function shortDate(iso: string) {
+  try { return new Date(iso).toLocaleDateString("es-ES", { day: "2-digit", month: "short" }); }
+  catch { return iso; }
+}
 
 export function ServicePage({ servicio }: { servicio: Servicio }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { const t = setTimeout(() => setMounted(true), 50); return () => clearTimeout(t); }, []);
 
   const data = useClinicData();
+  const { role } = useSession();
+  const isAdmin = role === "Agency_Admin";
+  const { tareas } = useTareas();
+  const { getOverride, setAvanceManual, setPasos } = useServicioOverrides();
+
   const looms = data.looms.filter((l) => l.serviciosSlugs.includes(servicio.slug));
   const entregables = data.entregables.filter((e) => e.servicioSlug === servicio.slug);
-  const pasos = data.proximosPasos.filter((p) => p.servicioSlug === servicio.slug);
   const metricas = data.resultados.filter((m) => m.servicioSlug === servicio.slug);
+
+  // Tareas del servicio
+  const tareasServicio = tareas.filter((t) => t.servicioSlug === servicio.slug);
+  const completadas = tareasServicio.filter((t) => t.columna === "completado").length;
+  const totalTareas = tareasServicio.length;
+  const avanceTareas = totalTareas > 0 ? Math.round((completadas / totalTareas) * 100) : servicio.avance;
+
+  const override = getOverride(servicio.slug);
+  const avanceFinal = override.avanceManual ?? avanceTareas;
+
+  // Próximos pasos: override list (PasoLocal) si existe; sino, defaults de portalData
+  const defaultPasos: PasoLocal[] = useMemo(
+    () => data.proximosPasos
+      .filter((p) => p.servicioSlug === servicio.slug)
+      .map((p) => ({
+        id: `seed-${p.id}`,
+        fecha: p.fecha,
+        fechaIso: p.fechaIso,
+        texto: p.texto,
+        tipo: p.tipo,
+      })),
+    [data.proximosPasos, servicio.slug],
+  );
+  const pasosActuales: PasoLocal[] = override.pasos ?? defaultPasos;
+
+  const [pasoModal, setPasoModal] = useState<{ paso: PasoLocal | null } | null>(null);
+  const [avanceModal, setAvanceModal] = useState(false);
+
+  const savePaso = (paso: PasoLocal) => {
+    const exists = pasosActuales.some((p) => p.id === paso.id);
+    const next = exists
+      ? pasosActuales.map((p) => (p.id === paso.id ? paso : p))
+      : [...pasosActuales, paso];
+    next.sort((a, b) => a.fechaIso.localeCompare(b.fechaIso));
+    setPasos(servicio.slug, next);
+    setPasoModal(null);
+  };
+  const removePaso = (id: string) => {
+    setPasos(servicio.slug, pasosActuales.filter((p) => p.id !== id));
+  };
 
   return (
     <>
@@ -36,16 +89,32 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
 
       {/* Progress card */}
       <section className="rounded-xl border border-border bg-card p-5">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-[13px] font-semibold text-foreground">Avance general</h2>
-          <span className="text-[20px] font-semibold tabular-nums" style={{ color: servicio.color }}>
-            {servicio.avance}%
-          </span>
+        <div className="flex items-baseline justify-between gap-3">
+          <div>
+            <h2 className="text-[13px] font-semibold text-foreground">Avance general</h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              {override.avanceManual != null
+                ? "Avance fijado manualmente"
+                : totalTareas > 0
+                  ? `${completadas} de ${totalTareas} tareas completadas`
+                  : "Sin tareas todavía — usando avance inicial"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[20px] font-semibold tabular-nums" style={{ color: servicio.color }}>
+              {avanceFinal}%
+            </span>
+            {isAdmin && (
+              <Button size="sm" variant="ghost" onClick={() => setAvanceModal(true)} className="h-7 gap-1 px-2 text-[11px]">
+                <Pencil className="h-3 w-3" /> Editar
+              </Button>
+            )}
+          </div>
         </div>
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--border-soft)]">
           <div
             className="h-full rounded-full transition-[width] duration-700 ease-out"
-            style={{ width: mounted ? `${servicio.avance}%` : "0%", backgroundColor: servicio.color }}
+            style={{ width: mounted ? `${avanceFinal}%` : "0%", backgroundColor: servicio.color }}
           />
         </div>
 
@@ -124,15 +193,40 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
         </section>
 
         <section className="rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-3 text-[13px] font-semibold text-foreground">Próximos pasos</h2>
-          {pasos.length === 0 ? (
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[13px] font-semibold text-foreground">Próximos pasos</h2>
+            {isAdmin && (
+              <Button size="sm" variant="ghost" onClick={() => setPasoModal({ paso: null })} className="h-7 gap-1 px-2 text-[11px]">
+                <Plus className="h-3 w-3" /> Agregar
+              </Button>
+            )}
+          </div>
+          {pasosActuales.length === 0 ? (
             <p className="text-[12px] text-muted-foreground">Sin pasos pendientes.</p>
           ) : (
             <ul className="divide-y divide-border">
-              {pasos.map((p) => (
-                <li key={p.id} className="flex gap-3 py-2.5 first:pt-0 last:pb-0">
+              {pasosActuales.map((p) => (
+                <li key={p.id} className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
                   <span className="min-w-[60px] text-[11px] font-semibold" style={{ color: servicio.color }}>{p.fecha}</span>
-                  <span className="text-[12.5px] text-foreground">{p.texto}</span>
+                  <span className="flex-1 text-[12.5px] text-foreground">{p.texto}</span>
+                  {isAdmin && (
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => setPasoModal({ paso: p })}
+                        className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                        aria-label="Editar"
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </button>
+                      <button
+                        onClick={() => removePaso(p.id)}
+                        className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        aria-label="Borrar"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -160,12 +254,152 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
       {/* Kanban del servicio */}
       <section className="mt-5 rounded-xl border border-border bg-card p-5">
         <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-[13px] font-semibold text-foreground">Tablero de tareas</h2>
-          <span className="text-[11px] text-muted-foreground">Tareas de {servicio.nombre}</span>
+          <div>
+            <h2 className="text-[13px] font-semibold text-foreground">Tablero de tareas</h2>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Las tareas completadas alimentan el avance del servicio automáticamente.
+            </p>
+          </div>
+          <span className="text-[11px] text-muted-foreground">{completadas}/{totalTareas} completadas</span>
         </div>
         <KanbanBoard servicioSlug={servicio.slug} />
       </section>
+
+      {avanceModal && (
+        <AvanceModal
+          color={servicio.color}
+          avanceAuto={avanceTareas}
+          current={override.avanceManual ?? null}
+          onClose={() => setAvanceModal(false)}
+          onSave={(v) => { setAvanceManual(servicio.slug, v); setAvanceModal(false); }}
+        />
+      )}
+
+      {pasoModal && (
+        <PasoModal
+          paso={pasoModal.paso}
+          onClose={() => setPasoModal(null)}
+          onSave={savePaso}
+        />
+      )}
     </>
+  );
+}
+
+function AvanceModal({
+  color, avanceAuto, current, onClose, onSave,
+}: {
+  color: string;
+  avanceAuto: number;
+  current: number | null;
+  onClose: () => void;
+  onSave: (v: number | null) => void;
+}) {
+  const [value, setValue] = useState<number>(current ?? avanceAuto);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <header className="mb-4 flex items-center justify-between">
+          <h3 className="text-[14px] font-semibold text-foreground">Editar avance</h3>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+        </header>
+        <p className="text-[12px] text-muted-foreground">
+          Avance calculado por tareas: <span className="font-semibold text-foreground">{avanceAuto}%</span>
+        </p>
+        <div className="mt-4 flex items-center gap-3">
+          <input
+            type="range" min={0} max={100} value={value}
+            onChange={(e) => setValue(Number(e.target.value))}
+            className="flex-1"
+          />
+          <span className="w-12 text-right text-[16px] font-semibold tabular-nums" style={{ color }}>{value}%</span>
+        </div>
+        <input
+          type="number" min={0} max={100} value={value}
+          onChange={(e) => setValue(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
+          className="mt-3 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+        />
+        <footer className="mt-5 flex items-center justify-between gap-2 border-t border-border pt-4">
+          <Button variant="ghost" size="sm" onClick={() => onSave(null)} className="gap-1.5">
+            <RotateCcw className="h-3.5 w-3.5" /> Usar automático
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={onClose}>Cancelar</Button>
+            <Button size="sm" onClick={() => onSave(value)}>Guardar</Button>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+function PasoModal({
+  paso, onClose, onSave,
+}: {
+  paso: PasoLocal | null;
+  onClose: () => void;
+  onSave: (p: PasoLocal) => void;
+}) {
+  const isNew = !paso;
+  const [texto, setTexto] = useState(paso?.texto ?? "");
+  const [fechaIso, setFechaIso] = useState(paso?.fechaIso ?? new Date().toISOString().slice(0, 10));
+  const [tipo, setTipo] = useState<PasoLocal["tipo"]>(paso?.tipo ?? "accion");
+
+  const save = () => {
+    if (!texto.trim()) return;
+    const fecha = shortDate(fechaIso);
+    onSave({
+      id: paso?.id ?? `local-${Date.now()}`,
+      texto: texto.trim(),
+      fechaIso,
+      fecha,
+      tipo,
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <header className="mb-4 flex items-center justify-between">
+          <h3 className="text-[14px] font-semibold text-foreground">{isNew ? "Nuevo paso" : "Editar paso"}</h3>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+        </header>
+        <div className="space-y-3">
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Descripción</label>
+            <input
+              value={texto} onChange={(e) => setTexto(e.target.value)}
+              placeholder="¿Qué sigue?"
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Fecha</label>
+              <input
+                type="date" value={fechaIso} onChange={(e) => setFechaIso(e.target.value)}
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Tipo</label>
+              <select
+                value={tipo} onChange={(e) => setTipo(e.target.value as PasoLocal["tipo"])}
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+              >
+                <option value="accion">Acción</option>
+                <option value="call">Call</option>
+                <option value="hito">Hito</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <footer className="mt-5 flex items-center justify-end gap-2 border-t border-border pt-4">
+          <Button variant="outline" size="sm" onClick={onClose}>Cancelar</Button>
+          <Button size="sm" onClick={save}>{isNew ? "Agregar" : "Guardar"}</Button>
+        </footer>
+      </div>
+    </div>
   );
 }
 
