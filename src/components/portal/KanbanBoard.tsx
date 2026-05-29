@@ -220,13 +220,15 @@ export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
 }
 
 function TaskModal({
-  task, isAdmin, authorName, onClose, onCreate, onUpdate, onDelete, onComment, canDelete,
+  task, isAdmin, servicios, defaultServicioSlug, authorName, onClose, onCreate, onUpdate, onDelete, onComment, canDelete,
 }: {
   task: Tarea | null;
   isAdmin: boolean;
+  servicios: { slug: string; nombre: string; color: string }[];
+  defaultServicioSlug?: string;
   authorName: string;
   onClose: () => void;
-  onCreate: (data: { titulo: string; prioridad: Prioridad; fechaEntrega: string }) => void;
+  onCreate: (data: { titulo: string; prioridad: Prioridad; fechaEntrega: string; servicioSlug?: string }) => void;
   onUpdate: (patch: Partial<Tarea>) => void;
   onDelete: () => void;
   onComment: (texto: string) => void;
@@ -236,6 +238,7 @@ function TaskModal({
   const [titulo, setTitulo] = useState(task?.titulo ?? "");
   const [prioridad, setPrioridad] = useState<Prioridad>(task?.prioridad ?? "media");
   const [fechaEntrega, setFechaEntrega] = useState(task?.fechaEntrega ?? new Date().toISOString().slice(0, 10));
+  const [servicioSlug, setServicioSlug] = useState<string>(task?.servicioSlug ?? defaultServicioSlug ?? servicios[0]?.slug ?? "");
   const [comentario, setComentario] = useState("");
 
   const editable = isAdmin;
@@ -243,9 +246,9 @@ function TaskModal({
   const save = () => {
     if (isNew) {
       if (!titulo.trim()) return;
-      onCreate({ titulo: titulo.trim(), prioridad, fechaEntrega });
+      onCreate({ titulo: titulo.trim(), prioridad, fechaEntrega, servicioSlug: servicioSlug || undefined });
     } else {
-      onUpdate({ titulo: titulo.trim(), prioridad, fechaEntrega });
+      onUpdate({ titulo: titulo.trim(), prioridad, fechaEntrega, servicioSlug: servicioSlug || undefined });
       onClose();
     }
   };
@@ -297,6 +300,21 @@ function TaskModal({
                 className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] disabled:opacity-70"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Servicio vinculado</label>
+            <select
+              value={servicioSlug}
+              onChange={(e) => setServicioSlug(e.target.value)}
+              disabled={!editable && !isNew}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] disabled:opacity-70"
+            >
+              <option value="">Sin servicio</option>
+              {servicios.map((s) => (
+                <option key={s.slug} value={s.slug}>{s.nombre}</option>
+              ))}
+            </select>
           </div>
 
           {!isNew && task && (
