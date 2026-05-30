@@ -185,21 +185,48 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
       {/* Two columns */}
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <section className="rounded-xl border border-border bg-card p-5">
-          <h2 className="mb-3 text-[13px] font-semibold text-foreground">Entregables</h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-[13px] font-semibold text-foreground">Entregables</h2>
+            {isAdmin && (
+              <Button size="sm" variant="ghost" onClick={() => setEntregableModal({ entregable: null })} className="h-7 gap-1 px-2 text-[11px]">
+                <Plus className="h-3 w-3" /> Nuevo
+              </Button>
+            )}
+          </div>
           {entregables.length === 0 ? (
             <p className="text-[12px] text-muted-foreground">Aún no hay entregables.</p>
           ) : (
             <ul className="space-y-2">
               {entregables.map((e) => (
-                <li key={e.id} className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
-                  <div className="flex items-center gap-2.5">
-                    <FileText className="h-3.5 w-3.5 text-muted-foreground" />
-                    <div>
-                      <div className="text-[12px] font-medium text-foreground">{e.nombre}</div>
+                <li key={e.id} className="group flex items-center justify-between rounded-lg bg-background px-3 py-2">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <div className="min-w-0">
+                      <div className="truncate text-[12px] font-medium text-foreground">{e.nombre}</div>
                       <div className="text-[11px] text-muted-foreground">{e.fecha} · {e.version}</div>
                     </div>
                   </div>
-                  <span className="text-[11px] font-semibold" style={{ color: e.statusColor }}>{e.status}</span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <span className="text-[11px] font-semibold" style={{ color: e.statusColor }}>{e.status}</span>
+                    {isAdmin && (
+                      <div className="flex opacity-0 transition-opacity group-hover:opacity-100">
+                        <button
+                          onClick={() => setEntregableModal({ entregable: e })}
+                          className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                          aria-label="Editar entregable"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </button>
+                        <button
+                          onClick={() => removeEntregable(e.id)}
+                          className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                          aria-label="Borrar entregable"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -306,6 +333,16 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           paso={pasoModal.paso}
           onClose={() => setPasoModal(null)}
           onSave={savePaso}
+        />
+      )}
+
+      {entregableModal && (
+        <EntregableModal
+          entregable={entregableModal.entregable}
+          servicioNombre={servicio.nombre}
+          servicioSlug={servicio.slug}
+          onClose={() => setEntregableModal(null)}
+          onSave={saveEntregable}
         />
       )}
     </>
