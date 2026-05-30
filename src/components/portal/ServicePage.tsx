@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, CircleDot, Circle, FileText, ExternalLink, Play, Pencil, Plus, Trash2, X, RotateCcw } from "lucide-react";
+import { Check, CircleDot, Circle, FileText, ExternalLink, Play, Pencil, Plus, Trash2, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import type { Servicio } from "@/types/portal";
 import { useClinicData } from "@/hooks/useClinicData";
@@ -23,7 +23,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
   const { role } = useSession();
   const isAdmin = role === "Agency_Admin";
   const { tareas } = useTareas();
-  const { getOverride, setAvanceManual, setPasos } = useServicioOverrides();
+  const { getOverride, setPasos } = useServicioOverrides();
 
   const looms = data.looms.filter((l) => l.serviciosSlugs.includes(servicio.slug));
   const entregables = data.entregables.filter((e) => e.servicioSlug === servicio.slug);
@@ -33,10 +33,41 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
   const tareasServicio = tareas.filter((t) => t.servicioSlug === servicio.slug);
   const completadas = tareasServicio.filter((t) => t.columna === "completado").length;
   const totalTareas = tareasServicio.length;
-  const avanceTareas = totalTareas > 0 ? Math.round((completadas / totalTareas) * 100) : servicio.avance;
 
   const override = getOverride(servicio.slug);
-  const avanceFinal = override.avanceManual ?? avanceTareas;
+
+  // Hitos automáticos: asociamos cada tarea al primer hito cuyo keyword aparezca en el título.
+  const normalize = (s: string) =>
+    s.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+  const phaseKeyword = (nombre: string) => {
+    const words = normalize(nombre).split(/[^a-z0-9]+/).filter((w) => w.length >= 2);
+    return words[0] ?? "";
+  };
+  const fasesComputed = servicio.fases.map((f) => {
+    const kw = phaseKeyword(f.nombre);
+    const matched = kw
+      ? tareasServicio.filter((t) => normalize(t.titulo).includes(kw))
+      : [];
+    const done = matched.filter((t) => t.columna === "completado").length;
+    const total = matched.length;
+    const ratio = total > 0 ? done / total : 0;
+    let estado: "completada" | "actual" | "pendiente";
+    if (total > 0 && ratio === 1) estado = "completada";
+    else if (total > 0) estado = "actual";
+    else estado = "pendiente";
+    return { ...f, estado, done, total, ratio };
+  });
+  // Si ninguna fase está "actual" pero hay alguna pendiente después de completadas, marcar la primera pendiente como actual.
+  const hasActual = fasesComputed.some((f) => f.estado === "actual");
+  if (!hasActual) {
+    const idx = fasesComputed.findIndex((f) => f.estado === "pendiente");
+    if (idx !== -1) fasesComputed[idx] = { ...fasesComputed[idx], estado: "actual" };
+  }
+  const avanceFinal = fasesComputed.length > 0
+    ? Math.round(
+        (fasesComputed.reduce((acc, f) => acc + f.ratio, 0) / fasesComputed.length) * 100,
+      )
+    : (totalTareas > 0 ? Math.round((completadas / totalTareas) * 100) : servicio.avance);
 
   // Próximos pasos: override list (PasoLocal) si existe; sino, defaults de portalData
   const defaultPasos: PasoLocal[] = useMemo(
@@ -54,7 +85,6 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
   const pasosActuales: PasoLocal[] = override.pasos ?? defaultPasos;
 
   const [pasoModal, setPasoModal] = useState<{ paso: PasoLocal | null } | null>(null);
-  const [avanceModal, setAvanceModal] = useState(false);
 
   const savePaso = (paso: PasoLocal) => {
     const exists = pasosActuales.some((p) => p.id === paso.id);
@@ -93,23 +123,14 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           <div>
             <h2 className="text-[13px] font-semibold text-foreground">Avance general</h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {override.avanceManual != null
-                ? "Avance fijado manualmente"
-                : totalTareas > 0
-                  ? `${completadas} de ${totalTareas} tareas completadas`
-                  : "Sin tareas todavía — usando avance inicial"}
+              {totalTareas > 0
+                ? `${completadas} de ${totalTareas} tareas completadas · calculado por hitos`
+                : "Sin tareas todavía — el avance se actualiza con el tablero"}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[20px] font-semibold tabular-nums" style={{ color: servicio.color }}>
-              {avanceFinal}%
-            </span>
-            {isAdmin && (
-              <Button size="sm" variant="ghost" onClick={() => setAvanceModal(true)} className="h-7 gap-1 px-2 text-[11px]">
-                <Pencil className="h-3 w-3" /> Editar
-              </Button>
-            )}
-          </div>
+          <span className="text-[20px] font-semibold tabular-nums" style={{ color: servicio.color }}>
+            {avanceFinal}%
+          </span>
         </div>
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--border-soft)]">
           <div
@@ -120,7 +141,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
 
         {/* Phases timeline */}
         <ol className="mt-6 space-y-3">
-          {servicio.fases.map((f, i) => {
+          {fasesComputed.map((f, i) => {
             const Icon = f.estado === "completada" ? Check : f.estado === "actual" ? CircleDot : Circle;
             return (
               <li key={i} className="flex items-start gap-3">
@@ -138,7 +159,9 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
                   <span className={`text-[13px] ${f.estado === "actual" ? "font-semibold text-foreground" : "text-foreground"}`}>
                     {f.nombre}
                   </span>
-                  {f.fecha && <span className="text-[11px] text-muted-foreground">{f.fecha}</span>}
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
+                    {f.total > 0 ? `${f.done}/${f.total} tareas` : f.fecha ?? "sin tareas"}
+                  </span>
                 </div>
               </li>
             );
@@ -265,16 +288,6 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
         <KanbanBoard servicioSlug={servicio.slug} />
       </section>
 
-      {avanceModal && (
-        <AvanceModal
-          color={servicio.color}
-          avanceAuto={avanceTareas}
-          current={override.avanceManual ?? null}
-          onClose={() => setAvanceModal(false)}
-          onSave={(v) => { setAvanceManual(servicio.slug, v); setAvanceModal(false); }}
-        />
-      )}
-
       {pasoModal && (
         <PasoModal
           paso={pasoModal.paso}
@@ -283,53 +296,6 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
         />
       )}
     </>
-  );
-}
-
-function AvanceModal({
-  color, avanceAuto, current, onClose, onSave,
-}: {
-  color: string;
-  avanceAuto: number;
-  current: number | null;
-  onClose: () => void;
-  onSave: (v: number | null) => void;
-}) {
-  const [value, setValue] = useState<number>(current ?? avanceAuto);
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
-      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <header className="mb-4 flex items-center justify-between">
-          <h3 className="text-[14px] font-semibold text-foreground">Editar avance</h3>
-          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
-        </header>
-        <p className="text-[12px] text-muted-foreground">
-          Avance calculado por tareas: <span className="font-semibold text-foreground">{avanceAuto}%</span>
-        </p>
-        <div className="mt-4 flex items-center gap-3">
-          <input
-            type="range" min={0} max={100} value={value}
-            onChange={(e) => setValue(Number(e.target.value))}
-            className="flex-1"
-          />
-          <span className="w-12 text-right text-[16px] font-semibold tabular-nums" style={{ color }}>{value}%</span>
-        </div>
-        <input
-          type="number" min={0} max={100} value={value}
-          onChange={(e) => setValue(Math.max(0, Math.min(100, Number(e.target.value) || 0)))}
-          className="mt-3 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
-        />
-        <footer className="mt-5 flex items-center justify-between gap-2 border-t border-border pt-4">
-          <Button variant="ghost" size="sm" onClick={() => onSave(null)} className="gap-1.5">
-            <RotateCcw className="h-3.5 w-3.5" /> Usar automático
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={onClose}>Cancelar</Button>
-            <Button size="sm" onClick={() => onSave(value)}>Guardar</Button>
-          </div>
-        </footer>
-      </div>
-    </div>
   );
 }
 
