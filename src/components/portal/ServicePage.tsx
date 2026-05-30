@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { KanbanBoard } from "@/components/portal/KanbanBoard";
 import { useTareas } from "@/hooks/useTareas";
 import { useSession } from "@/hooks/useSession";
-import { useServicioOverrides, type PasoLocal } from "@/hooks/useServicioOverrides";
+import { useServicioOverrides, type PasoLocal, type EntregableLocal, type EntregableStatus, ENTREGABLE_STATUS_COLOR } from "@/hooks/useServicioOverrides";
 import { Button } from "@/components/ui/button";
 
 function shortDate(iso: string) {
@@ -23,10 +23,10 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
   const { role } = useSession();
   const isAdmin = role === "Agency_Admin";
   const { tareas } = useTareas();
-  const { getOverride, setPasos } = useServicioOverrides();
+  const { getOverride, setPasos, getEntregables, setEntregables } = useServicioOverrides();
 
   const looms = data.looms.filter((l) => l.serviciosSlugs.includes(servicio.slug));
-  const entregables = data.entregables.filter((e) => e.servicioSlug === servicio.slug);
+  const entregables = getEntregables(servicio.slug);
   const metricas = data.resultados.filter((m) => m.servicioSlug === servicio.slug);
 
   // Tareas del servicio
@@ -85,6 +85,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
   const pasosActuales: PasoLocal[] = override.pasos ?? defaultPasos;
 
   const [pasoModal, setPasoModal] = useState<{ paso: PasoLocal | null } | null>(null);
+  const [entregableModal, setEntregableModal] = useState<{ entregable: EntregableLocal | null } | null>(null);
 
   const savePaso = (paso: PasoLocal) => {
     const exists = pasosActuales.some((p) => p.id === paso.id);
@@ -97,6 +98,18 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
   };
   const removePaso = (id: string) => {
     setPasos(servicio.slug, pasosActuales.filter((p) => p.id !== id));
+  };
+
+  const saveEntregable = (e: EntregableLocal) => {
+    const exists = entregables.some((x) => x.id === e.id);
+    const next = exists
+      ? entregables.map((x) => (x.id === e.id ? e : x))
+      : [...entregables, e];
+    setEntregables(servicio.slug, next);
+    setEntregableModal(null);
+  };
+  const removeEntregable = (id: string) => {
+    setEntregables(servicio.slug, entregables.filter((x) => x.id !== id));
   };
 
   return (
