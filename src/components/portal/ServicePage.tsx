@@ -419,6 +419,98 @@ function PasoModal({
   );
 }
 
+function EntregableModal({
+  entregable, servicioNombre, servicioSlug, onClose, onSave,
+}: {
+  entregable: EntregableLocal | null;
+  servicioNombre: string;
+  servicioSlug: EntregableLocal["servicioSlug"];
+  onClose: () => void;
+  onSave: (e: EntregableLocal) => void;
+}) {
+  const isNew = !entregable;
+  const [nombre, setNombre] = useState(entregable?.nombre ?? "");
+  const [version, setVersion] = useState(entregable?.version ?? "v1");
+  const [status, setStatus] = useState<EntregableStatus>(entregable?.status ?? "Borrador");
+  const [fechaIso, setFechaIso] = useState(() => {
+    if (entregable?.fecha) {
+      const d = new Date(entregable.fecha);
+      if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+    }
+    return new Date().toISOString().slice(0, 10);
+  });
+
+  const save = () => {
+    if (!nombre.trim()) return;
+    const fecha = new Date(fechaIso).toLocaleDateString("es-ES", { day: "2-digit", month: "long" });
+    onSave({
+      id: entregable?.id ?? `local-${Date.now()}`,
+      nombre: nombre.trim(),
+      servicioSlug,
+      servicio: servicioNombre,
+      version: version.trim() || "v1",
+      status,
+      fecha,
+      statusColor: ENTREGABLE_STATUS_COLOR[status],
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <header className="mb-4 flex items-center justify-between">
+          <h3 className="text-[14px] font-semibold text-foreground">{isNew ? "Nuevo entregable" : "Editar entregable"}</h3>
+          <button onClick={onClose} className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+        </header>
+        <div className="space-y-3">
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Nombre del archivo</label>
+            <input
+              value={nombre} onChange={(e) => setNombre(e.target.value)}
+              placeholder="Mockup_home_v2.pdf"
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Versión</label>
+              <input
+                value={version} onChange={(e) => setVersion(e.target.value)}
+                placeholder="v1"
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Fecha</label>
+              <input
+                type="date" value={fechaIso} onChange={(e) => setFechaIso(e.target.value)}
+                className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Estado</label>
+            <select
+              value={status} onChange={(e) => setStatus(e.target.value as EntregableStatus)}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px]"
+            >
+              <option value="Borrador">Borrador</option>
+              <option value="Para revisión">Para revisión</option>
+              <option value="Aprobado">Aprobado</option>
+              <option value="Final entregado">Final entregado</option>
+            </select>
+          </div>
+          <p className="text-[10.5px] text-muted-foreground">Vinculado a <span className="font-semibold text-foreground">{servicioNombre}</span></p>
+        </div>
+        <footer className="mt-5 flex items-center justify-end gap-2 border-t border-border pt-4">
+          <Button variant="outline" size="sm" onClick={onClose}>Cancelar</Button>
+          <Button size="sm" onClick={save}>{isNew ? "Crear" : "Guardar"}</Button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 export function ServiceNotContracted({ nombre }: { nombre: string }) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
