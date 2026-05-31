@@ -4,6 +4,8 @@ import { useTareas, type Columna, type Prioridad, type Tarea } from "@/hooks/use
 import { useSession } from "@/hooks/useSession";
 import { portalData } from "@/data/portalData";
 import { Button } from "@/components/ui/button";
+import { useServicioOverrides, type EntregableLocal } from "@/hooks/useServicioOverrides";
+import type { ServicioSlug } from "@/types/portal";
 
 const COLUMNAS: { id: Columna; label: string; accent: string }[] = [
   { id: "backlog", label: "Backlog", accent: "var(--muted-foreground)" },
@@ -29,6 +31,7 @@ function formatDate(iso: string) {
 export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
   const { tareas, add, update, remove, move, addComment } = useTareas();
   const { role, activeClinic } = useSession();
+  const { getEntregables } = useServicioOverrides();
   const isAdmin = role === "Agency_Admin";
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<Columna | null>(null);
@@ -197,6 +200,7 @@ export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
           isAdmin={isAdmin}
           servicios={serviciosClinica}
           defaultServicioSlug={servicioSlug}
+          getEntregables={getEntregables}
           authorName={isAdmin ? "Agencia" : activeClinic.nombreDoctor}
           onClose={() => { setAdding(false); setOpenTask(null); }}
           onCreate={(data) => { add({ ...data, columna: "backlog", createdBy: isAdmin ? "agency" : "client" }); setAdding(false); }}
