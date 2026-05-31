@@ -20,6 +20,7 @@ export interface Tarea {
   fechaEntrega: string; // YYYY-MM-DD
   columna: Columna;
   servicioSlug?: string;
+  entregableId?: string;
   createdBy: "agency" | "client";
   createdAt: string;
   comentarios: Comentario[];
