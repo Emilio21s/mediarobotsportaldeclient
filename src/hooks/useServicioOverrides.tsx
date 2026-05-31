@@ -53,6 +53,8 @@ type Ctx = {
   getEntregables: (slug: ServicioSlug) => EntregableLocal[];
   setEntregables: (slug: ServicioSlug, entregables: EntregableLocal[]) => void;
   getAllEntregables: () => EntregableLocal[];
+  getPasos: (slug: ServicioSlug) => PasoLocal[];
+  getAllPasos: () => Array<PasoLocal & { servicioSlug: ServicioSlug }>;
 };
 
 const Context = createContext<Ctx | null>(null);
@@ -88,6 +90,34 @@ export function ServicioOverridesProvider({ children }: { children: ReactNode })
     [clinicaId],
   );
 
+  const defaultPasos = useCallback(
+    (slug: ServicioSlug): PasoLocal[] =>
+      portalData.proximosPasos
+        .filter((p) => p.clinicaId === clinicaId && p.servicioSlug === slug)
+        .map((p) => ({
+          id: `seed-${p.id}`,
+          fecha: p.fecha,
+          fechaIso: p.fechaIso,
+          texto: p.texto,
+          tipo: p.tipo,
+        })),
+    [clinicaId],
+  );
+
+  const getPasos = useCallback(
+    (slug: ServicioSlug) => store[clinicaId]?.[slug]?.pasos ?? defaultPasos(slug),
+    [store, clinicaId, defaultPasos],
+  );
+
+  const getAllPasos = useCallback(() => {
+    const slugs = Array.from(
+      new Set(portalData.servicios.map((s) => s.slug as ServicioSlug)),
+    );
+    return slugs.flatMap((slug) =>
+      getPasos(slug).map((p) => ({ ...p, servicioSlug: slug })),
+    );
+  }, [getPasos]);
+
   const getEntregables = useCallback(
     (slug: ServicioSlug) => store[clinicaId]?.[slug]?.entregables ?? defaultEntregables(slug),
     [store, clinicaId, defaultEntregables],
@@ -114,7 +144,9 @@ export function ServicioOverridesProvider({ children }: { children: ReactNode })
     getEntregables,
     setEntregables: (slug, entregables) => mutate(slug, { entregables }),
     getAllEntregables,
-  }), [getOverride, getEntregables, getAllEntregables, store, clinicaId]);
+    getPasos,
+    getAllPasos,
+  }), [getOverride, getEntregables, getAllEntregables, getPasos, getAllPasos, store, clinicaId]);
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
