@@ -3,6 +3,8 @@ import { Calendar, Phone, Flag } from "lucide-react";
 import { portalData } from "@/data/portalData";
 import { useClinicData } from "@/hooks/useClinicData";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { useServicioOverrides } from "@/hooks/useServicioOverrides";
+import type { ServicioSlug } from "@/types/portal";
 
 export const Route = createFileRoute("/proximos-pasos")({
   head: () => ({ meta: [{ title: "Agenda · Media Robots" }, { name: "description", content: "Agenda cronológica del proyecto." }] }),
@@ -13,14 +15,40 @@ const ICONS = { accion: Flag, call: Phone, hito: Calendar } as const;
 
 function Page() {
   const { proximosPasos } = useClinicData();
-  const sorted = [...proximosPasos].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso));
+  const { getAllPasos } = useServicioOverrides();
+
+  // Pasos por servicio (vienen del store: override del servicio o defaults).
+  const pasosDeServicios = getAllPasos().map((p) => ({
+    id: `${p.servicioSlug}:${p.id}`,
+    texto: p.texto,
+    fecha: p.fecha,
+    fechaIso: p.fechaIso,
+    tipo: p.tipo,
+    servicioSlug: p.servicioSlug as ServicioSlug | undefined,
+  }));
+
+  // Pasos sin servicio asociado (no editables aquí): se preservan tal cual.
+  const pasosSinServicio = proximosPasos
+    .filter((p) => !p.servicioSlug)
+    .map((p) => ({
+      id: `general:${p.id}`,
+      texto: p.texto,
+      fecha: p.fecha,
+      fechaIso: p.fechaIso,
+      tipo: p.tipo,
+      servicioSlug: undefined as ServicioSlug | undefined,
+    }));
+
+  const sorted = [...pasosDeServicios, ...pasosSinServicio].sort((a, b) =>
+    a.fechaIso.localeCompare(b.fechaIso),
+  );
 
   return (
     <>
       <PageHeader
         eyebrow="Agenda"
         title="Próximos pasos"
-        description="Cronograma de hitos, calls y acciones del proyecto. Los tableros Kanban viven dentro de cada servicio."
+        description="Cronograma de hitos, calls y acciones. Los pasos editados en cada servicio se reflejan aquí en tiempo real."
       />
 
       <div className="rounded-xl border border-border bg-card">
