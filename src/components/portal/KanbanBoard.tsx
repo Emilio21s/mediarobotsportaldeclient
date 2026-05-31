@@ -4,6 +4,8 @@ import { useTareas, type Columna, type Prioridad, type Tarea } from "@/hooks/use
 import { useSession } from "@/hooks/useSession";
 import { portalData } from "@/data/portalData";
 import { Button } from "@/components/ui/button";
+import { useServicioOverrides, type EntregableLocal } from "@/hooks/useServicioOverrides";
+import type { ServicioSlug } from "@/types/portal";
 
 const COLUMNAS: { id: Columna; label: string; accent: string }[] = [
   { id: "backlog", label: "Backlog", accent: "var(--muted-foreground)" },
@@ -29,6 +31,7 @@ function formatDate(iso: string) {
 export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
   const { tareas, add, update, remove, move, addComment } = useTareas();
   const { role, activeClinic } = useSession();
+  const { getEntregables } = useServicioOverrides();
   const isAdmin = role === "Agency_Admin";
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overCol, setOverCol] = useState<Columna | null>(null);
@@ -197,6 +200,7 @@ export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
           isAdmin={isAdmin}
           servicios={serviciosClinica}
           defaultServicioSlug={servicioSlug}
+          getEntregables={getEntregables}
           authorName={isAdmin ? "Agencia" : activeClinic.nombreDoctor}
           onClose={() => { setAdding(false); setOpenTask(null); }}
           onCreate={(data) => { add({ ...data, columna: "backlog", createdBy: isAdmin ? "agency" : "client" }); setAdding(false); }}
@@ -220,15 +224,16 @@ export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
 }
 
 function TaskModal({
-  task, isAdmin, servicios, defaultServicioSlug, authorName, onClose, onCreate, onUpdate, onDelete, onComment, canDelete,
+  task, isAdmin, servicios, defaultServicioSlug, getEntregables, authorName, onClose, onCreate, onUpdate, onDelete, onComment, canDelete,
 }: {
   task: Tarea | null;
   isAdmin: boolean;
   servicios: { slug: string; nombre: string; color: string }[];
   defaultServicioSlug?: string;
+  getEntregables: (slug: ServicioSlug) => EntregableLocal[];
   authorName: string;
   onClose: () => void;
-  onCreate: (data: { titulo: string; prioridad: Prioridad; fechaEntrega: string; servicioSlug?: string }) => void;
+  onCreate: (data: { titulo: string; prioridad: Prioridad; fechaEntrega: string; servicioSlug?: string; entregableId?: string }) => void;
   onUpdate: (patch: Partial<Tarea>) => void;
   onDelete: () => void;
   onComment: (texto: string) => void;
@@ -239,16 +244,21 @@ function TaskModal({
   const [prioridad, setPrioridad] = useState<Prioridad>(task?.prioridad ?? "media");
   const [fechaEntrega, setFechaEntrega] = useState(task?.fechaEntrega ?? new Date().toISOString().slice(0, 10));
   const [servicioSlug, setServicioSlug] = useState<string>(task?.servicioSlug ?? defaultServicioSlug ?? servicios[0]?.slug ?? "");
+  const [entregableId, setEntregableId] = useState<string>(task?.entregableId ?? "");
   const [comentario, setComentario] = useState("");
 
   const editable = isAdmin;
 
+  const entregablesDelServicio: EntregableLocal[] = servicioSlug
+    ? getEntregables(servicioSlug as ServicioSlug)
+    : [];
+
   const save = () => {
     if (isNew) {
       if (!titulo.trim()) return;
-      onCreate({ titulo: titulo.trim(), prioridad, fechaEntrega, servicioSlug: servicioSlug || undefined });
+      onCreate({ titulo: titulo.trim(), prioridad, fechaEntrega, servicioSlug: servicioSlug || undefined, entregableId: entregableId || undefined });
     } else {
-      onUpdate({ titulo: titulo.trim(), prioridad, fechaEntrega, servicioSlug: servicioSlug || undefined });
+      onUpdate({ titulo: titulo.trim(), prioridad, fechaEntrega, servicioSlug: servicioSlug || undefined, entregableId: entregableId || undefined });
       onClose();
     }
   };
@@ -306,7 +316,7 @@ function TaskModal({
             <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Servicio vinculado</label>
             <select
               value={servicioSlug}
-              onChange={(e) => setServicioSlug(e.target.value)}
+              onChange={(e) => { setServicioSlug(e.target.value); setEntregableId(""); }}
               disabled={!editable && !isNew}
               className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] disabled:opacity-70"
             >
@@ -315,6 +325,24 @@ function TaskModal({
                 <option key={s.slug} value={s.slug}>{s.nombre}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Entregable vinculado</label>
+            <select
+              value={entregableId}
+              onChange={(e) => setEntregableId(e.target.value)}
+              disabled={(!editable && !isNew) || !servicioSlug || entregablesDelServicio.length === 0}
+              className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-[13px] disabled:opacity-70"
+            >
+              <option value="">Sin entregable</option>
+              {entregablesDelServicio.map((e) => (
+                <option key={e.id} value={e.id}>{e.nombre}</option>
+              ))}
+            </select>
+            {servicioSlug && entregablesDelServicio.length === 0 && (
+              <p className="mt-1 text-[10.5px] text-muted-foreground">Este servicio aún no tiene entregables creados.</p>
+            )}
           </div>
 
           {!isNew && task && (

@@ -36,18 +36,9 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
 
   const override = getOverride(servicio.slug);
 
-  // Hitos automáticos: asociamos cada tarea al primer hito cuyo keyword aparezca en el título.
-  const normalize = (s: string) =>
-    s.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-  const phaseKeyword = (nombre: string) => {
-    const words = normalize(nombre).split(/[^a-z0-9]+/).filter((w) => w.length >= 2);
-    return words[0] ?? "";
-  };
-  const fasesComputed = servicio.fases.map((f) => {
-    const kw = phaseKeyword(f.nombre);
-    const matched = kw
-      ? tareasServicio.filter((t) => normalize(t.titulo).includes(kw))
-      : [];
+  // Hitos = entregables del servicio. Cada hito agrupa tareas vinculadas por entregableId.
+  const hitosComputed = entregables.map((e) => {
+    const matched = tareasServicio.filter((t) => t.entregableId === e.id);
     const done = matched.filter((t) => t.columna === "completado").length;
     const total = matched.length;
     const ratio = total > 0 ? done / total : 0;
@@ -55,17 +46,17 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
     if (total > 0 && ratio === 1) estado = "completada";
     else if (total > 0) estado = "actual";
     else estado = "pendiente";
-    return { ...f, estado, done, total, ratio };
+    return { id: e.id, nombre: e.nombre, fecha: e.fecha, estado, done, total, ratio };
   });
-  // Si ninguna fase está "actual" pero hay alguna pendiente después de completadas, marcar la primera pendiente como actual.
-  const hasActual = fasesComputed.some((f) => f.estado === "actual");
+  // Marca la primera pendiente como "actual" si ninguna está activa.
+  const hasActual = hitosComputed.some((f) => f.estado === "actual");
   if (!hasActual) {
-    const idx = fasesComputed.findIndex((f) => f.estado === "pendiente");
-    if (idx !== -1) fasesComputed[idx] = { ...fasesComputed[idx], estado: "actual" };
+    const idx = hitosComputed.findIndex((f) => f.estado === "pendiente");
+    if (idx !== -1) hitosComputed[idx] = { ...hitosComputed[idx], estado: "actual" };
   }
-  const avanceFinal = fasesComputed.length > 0
+  const avanceFinal = hitosComputed.length > 0
     ? Math.round(
-        (fasesComputed.reduce((acc, f) => acc + f.ratio, 0) / fasesComputed.length) * 100,
+        (hitosComputed.reduce((acc, f) => acc + f.ratio, 0) / hitosComputed.length) * 100,
       )
     : (totalTareas > 0 ? Math.round((completadas / totalTareas) * 100) : servicio.avance);
 
@@ -136,9 +127,9 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           <div>
             <h2 className="text-[13px] font-semibold text-foreground">Avance general</h2>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {totalTareas > 0
-                ? `${completadas} de ${totalTareas} tareas completadas · calculado por hitos`
-                : "Sin tareas todavía — el avance se actualiza con el tablero"}
+              {hitosComputed.length === 0
+                ? "Creá entregables para definir los hitos del proyecto"
+                : `${completadas} de ${totalTareas} tareas completadas · calculado por entregables`}
             </p>
           </div>
           <span className="text-[20px] font-semibold tabular-nums" style={{ color: servicio.color }}>
@@ -154,10 +145,13 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
 
         {/* Phases timeline */}
         <ol className="mt-6 space-y-3">
-          {fasesComputed.map((f, i) => {
+          {hitosComputed.length === 0 && (
+            <li className="text-[12px] text-muted-foreground">Sin hitos todavía.</li>
+          )}
+          {hitosComputed.map((f, i) => {
             const Icon = f.estado === "completada" ? Check : f.estado === "actual" ? CircleDot : Circle;
             return (
-              <li key={i} className="flex items-start gap-3">
+              <li key={f.id ?? i} className="flex items-start gap-3">
                 <div
                   className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full"
                   style={{
@@ -173,7 +167,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
                     {f.nombre}
                   </span>
                   <span className="text-[11px] text-muted-foreground tabular-nums">
-                    {f.total > 0 ? `${f.done}/${f.total} tareas` : f.fecha ?? "sin tareas"}
+                    {f.total > 0 ? `${f.done}/${f.total} tareas` : "sin tareas"}
                   </span>
                 </div>
               </li>
