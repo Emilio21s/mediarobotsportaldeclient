@@ -133,7 +133,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               {hitosComputed.length === 0
                 ? "Creá entregables para definir los hitos del proyecto"
-                : `${completadas} de ${totalTareas} tareas completadas · calculado por entregables`}
+                : `${entregablesCompletados} de ${hitosComputed.length} entregables completados · ${completadas}/${totalTareas} tareas`}
             </p>
           </div>
           <span className="text-[20px] font-semibold tabular-nums" style={{ color: servicio.color }}>
