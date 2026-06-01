@@ -54,10 +54,14 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
     const idx = hitosComputed.findIndex((f) => f.estado === "pendiente");
     if (idx !== -1) hitosComputed[idx] = { ...hitosComputed[idx], estado: "actual" };
   }
+  // Avance general = % de entregables completados (todas sus tareas en "completado").
+  // Un entregable sin tareas vinculadas cuenta como no completado para mantener
+  // la consistencia tras crear/editar/eliminar entregables o tareas.
+  const entregablesCompletados = hitosComputed.filter(
+    (f) => f.total > 0 && f.ratio === 1,
+  ).length;
   const avanceFinal = hitosComputed.length > 0
-    ? Math.round(
-        (hitosComputed.reduce((acc, f) => acc + f.ratio, 0) / hitosComputed.length) * 100,
-      )
+    ? Math.round((entregablesCompletados / hitosComputed.length) * 100)
     : (totalTareas > 0 ? Math.round((completadas / totalTareas) * 100) : servicio.avance);
 
   // Próximos pasos: override list (PasoLocal) si existe; sino, defaults de portalData
