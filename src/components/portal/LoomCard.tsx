@@ -1,4 +1,4 @@
-import { Play } from "lucide-react";
+import { Play, Pencil } from "lucide-react";
 import type { Loom } from "@/types/portal";
 
 const TAG_COLORS: Record<string, { bg: string; text: string }> = {
@@ -17,9 +17,11 @@ interface Props {
   loom: Loom;
   expanded: boolean;
   onToggle: () => void;
+  onView?: () => void;
+  onEdit?: () => void;
 }
 
-export function LoomCard({ loom, expanded, onToggle }: Props) {
+export function LoomCard({ loom, expanded, onToggle, onView, onEdit }: Props) {
   return (
     <div
       role="button"
@@ -40,7 +42,19 @@ export function LoomCard({ loom, expanded, onToggle }: Props) {
         <span className="rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
           Semana {loom.semana}
         </span>
-        <span className="text-[11px] text-muted-foreground">{loom.duracion}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-muted-foreground">{loom.duracion}</span>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="rounded-md p-1 text-muted-foreground hover:bg-background hover:text-foreground"
+              aria-label="Editar semana"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-3 text-[11px] text-muted-foreground">{loom.fecha}</div>
@@ -74,11 +88,13 @@ export function LoomCard({ loom, expanded, onToggle }: Props) {
         </ul>
       )}
 
-      <a
-        href={loom.linkLoom}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          if (onView) onView();
+          else window.open(loom.linkLoom, "_blank", "noopener,noreferrer");
+        }}
         className="mt-4 inline-flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-[12px] font-medium transition-colors"
         style={{
           backgroundColor: expanded ? "var(--primary)" : "var(--background)",
@@ -87,7 +103,7 @@ export function LoomCard({ loom, expanded, onToggle }: Props) {
       >
         <Play className="h-3 w-3 fill-current" />
         Ver video
-      </a>
+      </button>
     </div>
   );
 }
