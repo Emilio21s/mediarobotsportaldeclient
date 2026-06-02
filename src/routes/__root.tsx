@@ -15,6 +15,7 @@ import { SessionProvider } from "@/hooks/useSession";
 import { TareasProvider } from "@/hooks/useTareas";
 import { ServicioOverridesProvider } from "@/hooks/useServicioOverrides";
 import { LoomsOverridesProvider } from "@/hooks/useLoomsOverrides";
+import { InvitationsProvider } from "@/hooks/useInvitations";
 
 function NotFoundComponent() {
   return (
@@ -130,7 +131,9 @@ function RootComponent() {
           <TareasProvider>
             <ServicioOverridesProvider>
               <LoomsOverridesProvider>
-                <AppShell />
+                <InvitationsProvider>
+                  <AppShell />
+                </InvitationsProvider>
               </LoomsOverridesProvider>
             </ServicioOverridesProvider>
           </TareasProvider>
