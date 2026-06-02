@@ -104,9 +104,14 @@ function Page() {
             key={l.id}
             loom={l}
             expanded={expandedId === l.id}
-            onToggle={() => setExpandedId((p) => (p === l.id ? null : l.id))}
-            onView={() => setViewLoom(l)}
-            onEdit={isAdmin ? () => setEditing(toDraft(l)) : undefined}
+            onActivate={() => {
+              setExpandedId(l.id);
+              if (isAdmin) {
+                setEditing(toDraft(l));
+              } else {
+                setViewLoom(l);
+              }
+            }}
           />
         ))}
         <div className="flex flex-col items-center justify-center rounded-xl bg-card px-4 py-10 text-center" style={{ border: "1.5px dashed var(--border)" }}>

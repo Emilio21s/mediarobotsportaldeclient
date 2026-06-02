@@ -37,7 +37,7 @@ export function WeeklyUpdates() {
             key={loom.id}
             loom={loom}
             expanded={expandedId === loom.id}
-            onToggle={() =>
+            onActivate={() =>
               setExpandedId((prev) => (prev === loom.id ? null : loom.id))
             }
           />
