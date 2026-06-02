@@ -2,16 +2,24 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home, Palette, Search, Workflow, Bot, Film, ListChecks, FolderOpen,
   BookMarked, MessageCircle, TrendingUp, Users, ChevronsUpDown, Plus, Send, Settings,
-  Check, Shield, User as UserIcon,
+  Check, Shield, User as UserIcon, Mail,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { useState } from "react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import { useSession } from "@/hooks/useSession";
 import { useClinicData } from "@/hooks/useClinicData";
+import { useInvitations } from "@/hooks/useInvitations";
 import type { ServicioSlug } from "@/types/portal";
 
 const SERVICE_ICONS: Record<ServicioSlug, LucideIcon> = {
@@ -75,6 +83,7 @@ export function AppSidebar() {
   const { role, setRole, clinicas, activeClinic, setActiveClinicId } = useSession();
   const { servicios } = useServiciosContratados();
   const { proximosPasos } = useClinicData();
+  const { pending } = useInvitations();
   const proximo = [...proximosPasos].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso))[0];
   const isAdmin = role === "Agency_Admin";
 
@@ -144,76 +153,73 @@ export function AppSidebar() {
 
       {/* Scrollable nav */}
       <nav className="flex-1 overflow-y-auto pb-2">
-        {isAdmin ? (
+        {servicios.length > 0 && (
           <>
-            {servicios.length > 0 && (
-              <>
-                <SectionLabel>Servicios</SectionLabel>
-                {servicios.map((s) => (
-                  <NavItem
-                    key={s.slug}
-                    to={`/servicios/${s.slug}`}
-                    icon={SERVICE_ICONS[s.slug]}
-                    label={s.nombre}
-                  />
-                ))}
-              </>
-            )}
+            <SectionLabel>Servicios</SectionLabel>
+            {servicios.map((s) => (
+              <NavItem
+                key={s.slug}
+                to={`/servicios/${s.slug}`}
+                icon={SERVICE_ICONS[s.slug]}
+                label={s.nombre}
+              />
+            ))}
+          </>
+        )}
 
-            <SectionLabel>Actualizaciones semanales</SectionLabel>
-            <NavItem to="/actualizaciones" icon={Film} label="Looms" right={<PlusButton />} />
+        <SectionLabel>Actualizaciones semanales</SectionLabel>
+        <NavItem to="/actualizaciones" icon={Film} label="Looms" right={isAdmin ? <PlusButton /> : undefined} />
 
-            <SectionLabel>Próximos pasos</SectionLabel>
+        <SectionLabel>Próximos pasos</SectionLabel>
+        <NavItem
+          to="/proximos-pasos"
+          icon={ListChecks}
+          label="Agenda"
+          right={
+            <span className="rounded-full bg-[var(--sidebar-accent)] px-1.5 py-0.5 text-[9.5px] font-medium text-foreground">
+              {proximo?.fecha ?? "—"}
+            </span>
+          }
+        />
+
+        <SectionLabel>Centro de Entregables</SectionLabel>
+        <NavItem to="/entregables" icon={FolderOpen} label="Archivos" right={isAdmin ? <PlusButton /> : undefined} />
+
+        <SectionLabel>Recursos importantes</SectionLabel>
+        <NavItem to="/recursos" icon={BookMarked} label="Documentos" />
+
+        <SectionLabel>Comunicación</SectionLabel>
+        <NavItem to="/comunicacion" icon={MessageCircle} label="Canales" />
+
+        <SectionLabel>Resultados</SectionLabel>
+        <NavItem to="/resultados" icon={TrendingUp} label="Métricas" />
+
+        <SectionLabel>Miembros</SectionLabel>
+        <NavItem to="/miembros" icon={Users} label="Equipo" />
+
+        {isAdmin && (
+          <>
+            <SectionLabel>Administración</SectionLabel>
             <NavItem
-              to="/proximos-pasos"
-              icon={ListChecks}
-              label="Agenda"
+              to="/invitaciones"
+              icon={Mail}
+              label="Invitaciones"
               right={
-                <span className="rounded-full bg-[var(--sidebar-accent)] px-1.5 py-0.5 text-[9.5px] font-medium text-foreground">
-                  {proximo?.fecha ?? "—"}
-                </span>
+                pending.length > 0 ? (
+                  <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[9.5px] font-semibold text-white">
+                    {pending.length}
+                  </span>
+                ) : undefined
               }
             />
-
-            <SectionLabel>Centro de Entregables</SectionLabel>
-            <NavItem to="/entregables" icon={FolderOpen} label="Archivos" right={<PlusButton />} />
-
-            <SectionLabel>Recursos importantes</SectionLabel>
-            <NavItem to="/recursos" icon={BookMarked} label="Documentos" />
-
-            <SectionLabel>Comunicación</SectionLabel>
-            <NavItem to="/comunicacion" icon={MessageCircle} label="Canales" />
-
-            <SectionLabel>Resultados</SectionLabel>
-            <NavItem to="/resultados" icon={TrendingUp} label="Métricas" />
-
-            <SectionLabel>Miembros</SectionLabel>
-            <NavItem to="/miembros" icon={Users} label="Equipo" />
-
-            <SectionLabel>Administración</SectionLabel>
             <NavItem to="/configuracion" icon={Settings} label="Configuración" />
-          </>
-        ) : (
-          <>
-            <SectionLabel>Mi proyecto</SectionLabel>
-            <NavItem to="/proximos-pasos" icon={ListChecks} label="Tareas" />
-            <NavItem to="/entregables" icon={FolderOpen} label="Archivos" />
-            <NavItem to="/comunicacion" icon={MessageCircle} label="Conversaciones" />
           </>
         )}
       </nav>
 
       {/* Footer */}
       <div className="space-y-2 p-3">
-        {isAdmin && (
-          <div className="rounded-2xl border border-[var(--sidebar-border)] bg-card p-3">
-            <Send className="h-4 w-4 text-foreground" strokeWidth={1.75} />
-            <div className="mt-2 text-[12px] font-bold text-foreground">Invite team members</div>
-            <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
-              Sumá a tu equipo para colaborar y revisar avances.
-            </div>
-          </div>
-        )}
+        <InviteTeamCard />
 
         {/* Demo role switcher */}
         <DropdownMenu>
@@ -244,5 +250,129 @@ export function AppSidebar() {
         </DropdownMenu>
       </div>
     </aside>
+  );
+}
+
+function InviteTeamCard() {
+  const { role, activeClinic } = useSession();
+  const { createInvitation, forClinic, pending } = useInvitations();
+  const [open, setOpen] = useState(false);
+  const [nombre, setNombre] = useState("");
+  const [email, setEmail] = useState("");
+
+  const isAdmin = role === "Agency_Admin";
+  const clinicInvites = forClinic(activeClinic.id);
+  const clinicPending = clinicInvites.filter((i) => i.status === "pending_approval").length;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const n = nombre.trim();
+    const m = email.trim();
+    if (!n || n.length > 100) { toast.error("Ingresá un nombre válido"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m) || m.length > 255) { toast.error("Email inválido"); return; }
+    createInvitation({
+      clinicaId: activeClinic.id,
+      clinicaNombre: activeClinic.nombreClinica,
+      nombre: n,
+      email: m,
+    });
+    toast.success("Invitación enviada. Pendiente de aprobación.");
+    setNombre(""); setEmail(""); setOpen(false);
+  };
+
+  if (isAdmin) {
+    return (
+      <Link
+        to="/invitaciones"
+        className="block rounded-2xl border border-[var(--sidebar-border)] bg-card p-3 transition-colors hover:bg-[var(--sidebar-hover)]"
+      >
+        <Mail className="h-4 w-4 text-foreground" strokeWidth={1.75} />
+        <div className="mt-2 flex items-center gap-2">
+          <div className="text-[12px] font-bold text-foreground">Invitaciones</div>
+          {pending.length > 0 && (
+            <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[9.5px] font-semibold text-white">
+              {pending.length}
+            </span>
+          )}
+        </div>
+        <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+          {pending.length > 0
+            ? `${pending.length} miembro${pending.length === 1 ? "" : "s"} pendiente${pending.length === 1 ? "" : "s"} de aprobar.`
+            : "No hay invitaciones pendientes."}
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <button className="block w-full rounded-2xl border border-[var(--sidebar-border)] bg-card p-3 text-left transition-colors hover:bg-[var(--sidebar-hover)]">
+          <Send className="h-4 w-4 text-foreground" strokeWidth={1.75} />
+          <div className="mt-2 flex items-center gap-2">
+            <div className="text-[12px] font-bold text-foreground">Invite team members</div>
+            {clinicPending > 0 && (
+              <span className="rounded-full bg-amber-500 px-1.5 py-0.5 text-[9.5px] font-semibold text-white">
+                {clinicPending}
+              </span>
+            )}
+          </div>
+          <div className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+            Sumá a tu equipo. Media Robots debe aprobar cada invitación.
+          </div>
+        </button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Invitar a un miembro de tu equipo</DialogTitle>
+          <DialogDescription>
+            Enviá la solicitud. El equipo de Media Robots la revisará y aprobará el acceso al portal.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-nombre">Nombre</Label>
+            <Input id="inv-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} maxLength={100} placeholder="Ej: Ana López" autoFocus />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="inv-email">Email</Label>
+            <Input id="inv-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} placeholder="ana@clinica.com" />
+          </div>
+
+          {clinicInvites.length > 0 && (
+            <div className="rounded-md border border-border bg-[var(--sidebar)] p-2">
+              <div className="mb-1.5 text-[10.5px] font-medium uppercase tracking-wider text-muted-foreground">
+                Invitaciones de {activeClinic.nombreClinica}
+              </div>
+              <ul className="space-y-1">
+                {clinicInvites.slice(0, 5).map((i) => (
+                  <li key={i.id} className="flex items-center justify-between gap-2 text-[11.5px]">
+                    <span className="truncate text-foreground">{i.nombre} <span className="text-muted-foreground">· {i.email}</span></span>
+                    <span
+                      className={
+                        i.status === "approved" ? "text-emerald-600"
+                        : i.status === "rejected" ? "text-rose-600"
+                        : "text-amber-600"
+                      }
+                    >
+                      {i.status === "approved" ? "Aprobado" : i.status === "rejected" ? "Rechazado" : "Pendiente"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <DialogFooter>
+            <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-border bg-card px-3 py-1.5 text-[12.5px] font-medium text-foreground transition-colors hover:bg-[var(--sidebar-hover)]">
+              Cancelar
+            </button>
+            <button type="submit" className="rounded-md bg-primary px-3 py-1.5 text-[12.5px] font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+              Enviar invitación
+            </button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
