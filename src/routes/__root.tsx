@@ -16,6 +16,7 @@ import { TareasProvider } from "@/hooks/useTareas";
 import { ServicioOverridesProvider } from "@/hooks/useServicioOverrides";
 import { LoomsOverridesProvider } from "@/hooks/useLoomsOverrides";
 import { InvitationsProvider } from "@/hooks/useInvitations";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -133,6 +134,7 @@ function RootComponent() {
               <LoomsOverridesProvider>
                 <InvitationsProvider>
                   <AppShell />
+                  <Toaster />
                 </InvitationsProvider>
               </LoomsOverridesProvider>
             </ServicioOverridesProvider>
