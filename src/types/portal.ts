@@ -94,7 +94,14 @@ export interface Recurso {
   descripcion: string;
   tipo: "doc" | "link" | "credenciales";
   link: string;
+  categoria?: RecursoCategoria;
 }
+
+export type RecursoCategoria =
+  | "accesos"
+  | "identidad"
+  | "estrategia"
+  | "legal";
 
 export interface Metrica {
   id: number;
