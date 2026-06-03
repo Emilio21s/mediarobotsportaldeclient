@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, MessageCircle, Play, FileText } from "lucide-react";
 import { getProximoPaso } from "@/data/portalData";
 import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import { useSession } from "@/hooks/useSession";
 import { useClinicData } from "@/hooks/useClinicData";
+import { useLoomsOverrides } from "@/hooks/useLoomsOverrides";
 import { PageHeader } from "@/components/layout/PageHeader";
 
 export const Route = createFileRoute("/")({
@@ -29,7 +30,12 @@ function StatCard({ label, value, hint }: { label: string; value: string | numbe
 
 function Home() {
   const { activeClinic } = useSession();
-  const { looms, entregables, proximosPasos } = useClinicData();
+  const { entregables, proximosPasos } = useClinicData();
+  const { getLooms } = useLoomsOverrides();
+  const looms = useMemo(
+    () => [...getLooms()].sort((a, b) => a.semana - b.semana),
+    [getLooms],
+  );
   const { servicios } = useServiciosContratados();
   const proximo = getProximoPaso(activeClinic.id);
   const ultimoLoom = looms[looms.length - 1];
@@ -104,7 +110,10 @@ function Home() {
       {/* Two-column secondary */}
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
         {ultimoLoom && (
-          <section className="rounded-xl border border-border bg-card p-5">
+          <Link
+            to="/actualizaciones"
+            className="block rounded-xl border border-border bg-card p-5 transition-colors hover:bg-[var(--sidebar-hover)]"
+          >
             <h2 className="mb-3 text-[13px] font-semibold text-foreground">Último video</h2>
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
@@ -113,10 +122,10 @@ function Home() {
               <span className="text-[11px] text-muted-foreground">{ultimoLoom.duracion} · {ultimoLoom.fecha}</span>
             </div>
             <div className="mt-2 text-[14px] font-semibold text-foreground">{ultimoLoom.titulo}</div>
-            <a href={ultimoLoom.linkLoom} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground">
+            <span className="mt-3 inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-[12px] font-medium text-primary-foreground">
               <Play className="h-3 w-3 fill-current" /> Ver video
-            </a>
-          </section>
+            </span>
+          </Link>
         )}
 
         {proximo && (
