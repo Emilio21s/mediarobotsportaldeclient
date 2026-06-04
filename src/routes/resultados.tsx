@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { TrendingUp, TrendingDown, Minus, Plus, Trash2, Pencil } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { TrendingUp, TrendingDown, Minus, Plus, Trash2, Pencil, LayoutGrid } from "lucide-react";
 import { toast } from "sonner";
 import { getServicio, portalData } from "@/data/portalData";
 import { PageHeader } from "@/components/layout/PageHeader";
