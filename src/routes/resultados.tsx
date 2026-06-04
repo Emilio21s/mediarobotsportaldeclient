@@ -8,7 +8,7 @@ import { useSession } from "@/hooks/useSession";
 import { useMetricsOverrides, type Metric, type MetricStatus } from "@/hooks/useMetricsOverrides";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -293,5 +293,3 @@ function MetricDialog({
   );
 }
 
-// keep imports referenced
-void DialogTrigger;
