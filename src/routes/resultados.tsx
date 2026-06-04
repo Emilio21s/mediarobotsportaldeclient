@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { TrendingUp, TrendingDown, Minus, Plus, Trash2, Pencil } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { TrendingUp, TrendingDown, Minus, Plus, Trash2, Pencil, LayoutGrid } from "lucide-react";
 import { toast } from "sonner";
 import { getServicio, portalData } from "@/data/portalData";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -34,7 +34,32 @@ function Page() {
   const { getMetrics, upsertMetric, deleteMetric, newId } = useMetricsOverrides();
   const metrics = getMetrics();
 
+  const [serviceFilter, setServiceFilter] = useState<ServicioSlug | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<MetricStatus | "all">("all");
   const [draft, setDraft] = useState<Metric | null>(null);
+
+  const filtered = useMemo(() => {
+    return metrics.filter((m) => {
+      const okService = serviceFilter === "all" || m.service_id === serviceFilter;
+      const okStatus = statusFilter === "all" || m.status === statusFilter;
+      return okService && okStatus;
+    });
+  }, [metrics, serviceFilter, statusFilter]);
+
+  const serviceCounts = useMemo(() => {
+    const c: Record<string, number> = { all: metrics.length };
+    portalData.servicios.forEach((s) => { c[s.slug] = 0; });
+    metrics.forEach((m) => { c[m.service_id] = (c[m.service_id] ?? 0) + 1; });
+    return c;
+  }, [metrics]);
+
+  const statusCounts = useMemo(() => {
+    const c: Record<string, number> = { all: metrics.length, active: 0, pending_setup: 0 };
+    metrics.forEach((m) => { c[m.status]++; });
+    return c;
+  }, [metrics]);
+
+  const servicios = portalData.servicios;
 
   return (
     <>
@@ -59,13 +84,81 @@ function Page() {
         ) : undefined}
       />
 
-      {metrics.length === 0 ? (
-        <p className="rounded-xl border border-border bg-card p-6 text-center text-[12.5px] text-muted-foreground">
-          Aún no hay métricas registradas para esta clínica.
+      {/* Filter by Service */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setServiceFilter("all")}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${
+            serviceFilter === "all"
+              ? "border-foreground bg-foreground text-background"
+              : "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+          }`}
+        >
+          <LayoutGrid className="h-3 w-3" />
+          Todos
+          <span className="ml-0.5 rounded-full bg-background/20 px-1.5 py-0 text-[10px] tabular-nums">{serviceCounts.all}</span>
+        </button>
+        {servicios.map((s) => (
+          <button
+            key={s.slug}
+            onClick={() => setServiceFilter(s.slug)}
+            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${
+              serviceFilter === s.slug
+                ? "border-foreground bg-foreground text-background"
+                : "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+            }`}
+          >
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: s.color }} />
+            {s.nombre}
+            <span className="ml-0.5 rounded-full bg-background/20 px-1.5 py-0 text-[10px] tabular-nums">{serviceCounts[s.slug] ?? 0}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Filter by Status */}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setStatusFilter("all")}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${
+            statusFilter === "all"
+              ? "border-foreground bg-foreground text-background"
+              : "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+          }`}
+        >
+          Todos
+          <span className="ml-0.5 rounded-full bg-background/20 px-1.5 py-0 text-[10px] tabular-nums">{statusCounts.all}</span>
+        </button>
+        <button
+          onClick={() => setStatusFilter("active")}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${
+            statusFilter === "active"
+              ? "border-foreground bg-foreground text-background"
+              : "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+          }`}
+        >
+          Activo
+          <span className="ml-0.5 rounded-full bg-background/20 px-1.5 py-0 text-[10px] tabular-nums">{statusCounts.active}</span>
+        </button>
+        <button
+          onClick={() => setStatusFilter("pending_setup")}
+          className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11.5px] font-medium transition-colors ${
+            statusFilter === "pending_setup"
+              ? "border-foreground bg-foreground text-background"
+              : "border-border bg-card text-muted-foreground hover:border-foreground/30 hover:text-foreground"
+          }`}
+        >
+          Pendiente de setup
+          <span className="ml-0.5 rounded-full bg-background/20 px-1.5 py-0 text-[10px] tabular-nums">{statusCounts.pending_setup}</span>
+        </button>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="mt-6 rounded-xl border border-border bg-card p-6 text-center text-[12.5px] text-muted-foreground">
+          No hay métricas que coincidan con los filtros seleccionados.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {metrics.map((m) => (
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((m) => (
             <MetricCard
               key={m.id}
               metric={m}
