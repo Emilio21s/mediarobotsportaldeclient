@@ -9,14 +9,23 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WhatsappRouteImport } from './routes/whatsapp'
+import { Route as SitioWebRouteImport } from './routes/sitio-web'
+import { Route as SeoGmbRouteImport } from './routes/seo-gmb'
 import { Route as ResultadosRouteImport } from './routes/resultados'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as ProximosPasosRouteImport } from './routes/proximos-pasos'
 import { Route as MiembrosRouteImport } from './routes/miembros'
 import { Route as InvitacionesRouteImport } from './routes/invitaciones'
+import { Route as GhlRouteImport } from './routes/ghl'
+import { Route as EquipoRouteImport } from './routes/equipo'
 import { Route as EntregablesRouteImport } from './routes/entregables'
+import { Route as EmailRouteImport } from './routes/email'
+import { Route as DocumentosRouteImport } from './routes/documentos'
 import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as ComunicacionRouteImport } from './routes/comunicacion'
+import { Route as AgentesIaRouteImport } from './routes/agentes-ia'
+import { Route as AgendarRouteImport } from './routes/agendar'
 import { Route as ActualizacionesRouteImport } from './routes/actualizaciones'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServiciosSeoRouteImport } from './routes/servicios.seo'
@@ -24,6 +33,21 @@ import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-
 import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
 import { Route as ServiciosAgentesIaRouteImport } from './routes/servicios.agentes-ia'
 
+const WhatsappRoute = WhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitioWebRoute = SitioWebRouteImport.update({
+  id: '/sitio-web',
+  path: '/sitio-web',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SeoGmbRoute = SeoGmbRouteImport.update({
+  id: '/seo-gmb',
+  path: '/seo-gmb',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResultadosRoute = ResultadosRouteImport.update({
   id: '/resultados',
   path: '/resultados',
@@ -49,9 +73,29 @@ const InvitacionesRoute = InvitacionesRouteImport.update({
   path: '/invitaciones',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GhlRoute = GhlRouteImport.update({
+  id: '/ghl',
+  path: '/ghl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipoRoute = EquipoRouteImport.update({
+  id: '/equipo',
+  path: '/equipo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EntregablesRoute = EntregablesRouteImport.update({
   id: '/entregables',
   path: '/entregables',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmailRoute = EmailRouteImport.update({
+  id: '/email',
+  path: '/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocumentosRoute = DocumentosRouteImport.update({
+  id: '/documentos',
+  path: '/documentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracionRoute = ConfiguracionRouteImport.update({
@@ -62,6 +106,16 @@ const ConfiguracionRoute = ConfiguracionRouteImport.update({
 const ComunicacionRoute = ComunicacionRouteImport.update({
   id: '/comunicacion',
   path: '/comunicacion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgentesIaRoute = AgentesIaRouteImport.update({
+  id: '/agentes-ia',
+  path: '/agentes-ia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AgendarRoute = AgendarRouteImport.update({
+  id: '/agendar',
+  path: '/agendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ActualizacionesRoute = ActualizacionesRouteImport.update({
@@ -98,14 +152,23 @@ const ServiciosAgentesIaRoute = ServiciosAgentesIaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
+  '/agendar': typeof AgendarRoute
+  '/agentes-ia': typeof AgentesIaRoute
   '/comunicacion': typeof ComunicacionRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/documentos': typeof DocumentosRoute
+  '/email': typeof EmailRoute
   '/entregables': typeof EntregablesRoute
+  '/equipo': typeof EquipoRoute
+  '/ghl': typeof GhlRoute
   '/invitaciones': typeof InvitacionesRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
+  '/seo-gmb': typeof SeoGmbRoute
+  '/sitio-web': typeof SitioWebRoute
+  '/whatsapp': typeof WhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -114,14 +177,23 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
+  '/agendar': typeof AgendarRoute
+  '/agentes-ia': typeof AgentesIaRoute
   '/comunicacion': typeof ComunicacionRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/documentos': typeof DocumentosRoute
+  '/email': typeof EmailRoute
   '/entregables': typeof EntregablesRoute
+  '/equipo': typeof EquipoRoute
+  '/ghl': typeof GhlRoute
   '/invitaciones': typeof InvitacionesRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
+  '/seo-gmb': typeof SeoGmbRoute
+  '/sitio-web': typeof SitioWebRoute
+  '/whatsapp': typeof WhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -131,14 +203,23 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
+  '/agendar': typeof AgendarRoute
+  '/agentes-ia': typeof AgentesIaRoute
   '/comunicacion': typeof ComunicacionRoute
   '/configuracion': typeof ConfiguracionRoute
+  '/documentos': typeof DocumentosRoute
+  '/email': typeof EmailRoute
   '/entregables': typeof EntregablesRoute
+  '/equipo': typeof EquipoRoute
+  '/ghl': typeof GhlRoute
   '/invitaciones': typeof InvitacionesRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
+  '/seo-gmb': typeof SeoGmbRoute
+  '/sitio-web': typeof SitioWebRoute
+  '/whatsapp': typeof WhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -149,14 +230,23 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/actualizaciones'
+    | '/agendar'
+    | '/agentes-ia'
     | '/comunicacion'
     | '/configuracion'
+    | '/documentos'
+    | '/email'
     | '/entregables'
+    | '/equipo'
+    | '/ghl'
     | '/invitaciones'
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
     | '/resultados'
+    | '/seo-gmb'
+    | '/sitio-web'
+    | '/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -165,14 +255,23 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/actualizaciones'
+    | '/agendar'
+    | '/agentes-ia'
     | '/comunicacion'
     | '/configuracion'
+    | '/documentos'
+    | '/email'
     | '/entregables'
+    | '/equipo'
+    | '/ghl'
     | '/invitaciones'
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
     | '/resultados'
+    | '/seo-gmb'
+    | '/sitio-web'
+    | '/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -181,14 +280,23 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/actualizaciones'
+    | '/agendar'
+    | '/agentes-ia'
     | '/comunicacion'
     | '/configuracion'
+    | '/documentos'
+    | '/email'
     | '/entregables'
+    | '/equipo'
+    | '/ghl'
     | '/invitaciones'
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
     | '/resultados'
+    | '/seo-gmb'
+    | '/sitio-web'
+    | '/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -198,14 +306,23 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActualizacionesRoute: typeof ActualizacionesRoute
+  AgendarRoute: typeof AgendarRoute
+  AgentesIaRoute: typeof AgentesIaRoute
   ComunicacionRoute: typeof ComunicacionRoute
   ConfiguracionRoute: typeof ConfiguracionRoute
+  DocumentosRoute: typeof DocumentosRoute
+  EmailRoute: typeof EmailRoute
   EntregablesRoute: typeof EntregablesRoute
+  EquipoRoute: typeof EquipoRoute
+  GhlRoute: typeof GhlRoute
   InvitacionesRoute: typeof InvitacionesRoute
   MiembrosRoute: typeof MiembrosRoute
   ProximosPasosRoute: typeof ProximosPasosRoute
   RecursosRoute: typeof RecursosRoute
   ResultadosRoute: typeof ResultadosRoute
+  SeoGmbRoute: typeof SeoGmbRoute
+  SitioWebRoute: typeof SitioWebRoute
+  WhatsappRoute: typeof WhatsappRoute
   ServiciosAgentesIaRoute: typeof ServiciosAgentesIaRoute
   ServiciosDisenoWebRoute: typeof ServiciosDisenoWebRoute
   ServiciosGoHighLevelRoute: typeof ServiciosGoHighLevelRoute
@@ -214,6 +331,27 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/whatsapp': {
+      id: '/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/whatsapp'
+      preLoaderRoute: typeof WhatsappRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitio-web': {
+      id: '/sitio-web'
+      path: '/sitio-web'
+      fullPath: '/sitio-web'
+      preLoaderRoute: typeof SitioWebRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/seo-gmb': {
+      id: '/seo-gmb'
+      path: '/seo-gmb'
+      fullPath: '/seo-gmb'
+      preLoaderRoute: typeof SeoGmbRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/resultados': {
       id: '/resultados'
       path: '/resultados'
@@ -249,11 +387,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InvitacionesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ghl': {
+      id: '/ghl'
+      path: '/ghl'
+      fullPath: '/ghl'
+      preLoaderRoute: typeof GhlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipo': {
+      id: '/equipo'
+      path: '/equipo'
+      fullPath: '/equipo'
+      preLoaderRoute: typeof EquipoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/entregables': {
       id: '/entregables'
       path: '/entregables'
       fullPath: '/entregables'
       preLoaderRoute: typeof EntregablesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/email': {
+      id: '/email'
+      path: '/email'
+      fullPath: '/email'
+      preLoaderRoute: typeof EmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/documentos': {
+      id: '/documentos'
+      path: '/documentos'
+      fullPath: '/documentos'
+      preLoaderRoute: typeof DocumentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracion': {
@@ -268,6 +434,20 @@ declare module '@tanstack/react-router' {
       path: '/comunicacion'
       fullPath: '/comunicacion'
       preLoaderRoute: typeof ComunicacionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agentes-ia': {
+      id: '/agentes-ia'
+      path: '/agentes-ia'
+      fullPath: '/agentes-ia'
+      preLoaderRoute: typeof AgentesIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/agendar': {
+      id: '/agendar'
+      path: '/agendar'
+      fullPath: '/agendar'
+      preLoaderRoute: typeof AgendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/actualizaciones': {
@@ -318,14 +498,23 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActualizacionesRoute: ActualizacionesRoute,
+  AgendarRoute: AgendarRoute,
+  AgentesIaRoute: AgentesIaRoute,
   ComunicacionRoute: ComunicacionRoute,
   ConfiguracionRoute: ConfiguracionRoute,
+  DocumentosRoute: DocumentosRoute,
+  EmailRoute: EmailRoute,
   EntregablesRoute: EntregablesRoute,
+  EquipoRoute: EquipoRoute,
+  GhlRoute: GhlRoute,
   InvitacionesRoute: InvitacionesRoute,
   MiembrosRoute: MiembrosRoute,
   ProximosPasosRoute: ProximosPasosRoute,
   RecursosRoute: RecursosRoute,
   ResultadosRoute: ResultadosRoute,
+  SeoGmbRoute: SeoGmbRoute,
+  SitioWebRoute: SitioWebRoute,
+  WhatsappRoute: WhatsappRoute,
   ServiciosAgentesIaRoute: ServiciosAgentesIaRoute,
   ServiciosDisenoWebRoute: ServiciosDisenoWebRoute,
   ServiciosGoHighLevelRoute: ServiciosGoHighLevelRoute,
@@ -334,3 +523,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
