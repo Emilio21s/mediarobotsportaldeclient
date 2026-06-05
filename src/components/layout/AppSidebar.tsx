@@ -1,8 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Home, Palette, Search, Workflow, Bot, Film, ListChecks, FolderOpen,
-  BookMarked, MessageCircle, TrendingUp, Users, ChevronsUpDown, Plus, Send, Settings,
-  Check, Shield, User as UserIcon, Mail,
+  Home, Bot, TrendingUp, Users, ChevronsUpDown, Plus, Send, Settings,
+  Check, Shield, User as UserIcon, Mail, MessageSquare, Calendar, Globe, Rocket,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -16,18 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useServiciosContratados } from "@/hooks/useServiciosContratados";
 import { useSession } from "@/hooks/useSession";
-import { useClinicData } from "@/hooks/useClinicData";
 import { useInvitations } from "@/hooks/useInvitations";
-import type { ServicioSlug } from "@/types/portal";
-
-const SERVICE_ICONS: Record<ServicioSlug, LucideIcon> = {
-  "diseno-web": Palette,
-  seo: Search,
-  "go-high-level": Workflow,
-  "agentes-ia": Bot,
-};
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -55,18 +44,6 @@ function NavItem({
   );
 }
 
-function PlusButton() {
-  return (
-    <button
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-      className="flex h-5 w-5 items-center justify-center rounded-md border border-border text-muted-foreground transition-colors hover:bg-card hover:text-foreground"
-      aria-label="Añadir"
-    >
-      <Plus className="h-3 w-3" strokeWidth={2} />
-    </button>
-  );
-}
-
 function ClinicAvatar({ color, iniciales, size = 16 }: { color: string; iniciales: string; size?: number }) {
   return (
     <span
@@ -81,10 +58,7 @@ function ClinicAvatar({ color, iniciales, size = 16 }: { color: string; iniciale
 
 export function AppSidebar() {
   const { role, setRole, clinicas, activeClinic, setActiveClinicId } = useSession();
-  const { servicios } = useServiciosContratados();
-  const { proximosPasos } = useClinicData();
   const { pending } = useInvitations();
-  const proximo = [...proximosPasos].sort((a, b) => a.fechaIso.localeCompare(b.fechaIso))[0];
   const isAdmin = role === "Agency_Admin";
 
   return (
@@ -153,46 +127,16 @@ export function AppSidebar() {
 
       {/* Scrollable nav */}
       <nav className="flex-1 overflow-y-auto pb-2">
-        {servicios.length > 0 && (
-          <>
-            <SectionLabel>Servicios</SectionLabel>
-            {servicios.map((s) => (
-              <NavItem
-                key={s.slug}
-                to={`/servicios/${s.slug}`}
-                icon={SERVICE_ICONS[s.slug]}
-                label={s.nombre}
-              />
-            ))}
-          </>
-        )}
-
-        <SectionLabel>Actualizaciones semanales</SectionLabel>
-        <NavItem to="/actualizaciones" icon={Film} label="Looms" right={isAdmin ? <PlusButton /> : undefined} />
-
-        <SectionLabel>Próximos pasos</SectionLabel>
-        <NavItem
-          to="/proximos-pasos"
-          icon={ListChecks}
-          label="Agenda"
-          right={
-            <span className="rounded-full bg-[var(--sidebar-accent)] px-1.5 py-0.5 text-[9.5px] font-medium text-foreground">
-              {proximo?.fecha ?? "—"}
-            </span>
-          }
-        />
-
-        <SectionLabel>Centro de Entregables</SectionLabel>
-        <NavItem to="/entregables" icon={FolderOpen} label="Archivos" right={isAdmin ? <PlusButton /> : undefined} />
-
-        <SectionLabel>Recursos importantes</SectionLabel>
-        <NavItem to="/recursos" icon={BookMarked} label="Documentos" />
-
         <SectionLabel>Comunicación</SectionLabel>
-        <NavItem to="/comunicacion" icon={MessageCircle} label="Canales" />
+        <NavItem to="/comunicacion" icon={MessageSquare} label="WhatsApp" />
+        <NavItem to="/proximos-pasos" icon={Calendar} label="Agendar reunión" />
+        <NavItem to="/comunicacion" icon={Mail} label="Email" />
 
         <SectionLabel>Resultados</SectionLabel>
-        <NavItem to="/resultados" icon={TrendingUp} label="Métricas" />
+        <NavItem to="/servicios/diseno-web" icon={Globe} label="Sitio web" />
+        <NavItem to="/servicios/seo" icon={TrendingUp} label="SEO y GMB" />
+        <NavItem to="/servicios/go-high-level" icon={Rocket} label="Go High Level" />
+        <NavItem to="/servicios/agentes-ia" icon={Bot} label="Agentes de IA" />
 
         <SectionLabel>Miembros</SectionLabel>
         <NavItem to="/miembros" icon={Users} label="Equipo" />
