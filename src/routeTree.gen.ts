@@ -19,6 +19,7 @@ import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as ComunicacionRouteImport } from './routes/comunicacion'
 import { Route as ActualizacionesRouteImport } from './routes/actualizaciones'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ComunicacionIndexRouteImport } from './routes/comunicacion.index'
 import { Route as ServiciosSeoRouteImport } from './routes/servicios.seo'
 import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-high-level'
 import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
@@ -74,6 +75,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunicacionIndexRoute = ComunicacionIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ComunicacionRoute,
+} as any)
 const ServiciosSeoRoute = ServiciosSeoRouteImport.update({
   id: '/servicios/seo',
   path: '/servicios/seo',
@@ -98,7 +104,7 @@ const ServiciosAgentesIaRoute = ServiciosAgentesIaRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
-  '/comunicacion': typeof ComunicacionRoute
+  '/comunicacion': typeof ComunicacionRouteWithChildren
   '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/invitaciones': typeof InvitacionesRoute
@@ -110,11 +116,11 @@ export interface FileRoutesByFullPath {
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
   '/servicios/seo': typeof ServiciosSeoRoute
+  '/comunicacion/': typeof ComunicacionIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
-  '/comunicacion': typeof ComunicacionRoute
   '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/invitaciones': typeof InvitacionesRoute
@@ -126,12 +132,13 @@ export interface FileRoutesByTo {
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
   '/servicios/seo': typeof ServiciosSeoRoute
+  '/comunicacion': typeof ComunicacionIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/actualizaciones': typeof ActualizacionesRoute
-  '/comunicacion': typeof ComunicacionRoute
+  '/comunicacion': typeof ComunicacionRouteWithChildren
   '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/invitaciones': typeof InvitacionesRoute
@@ -143,6 +150,7 @@ export interface FileRoutesById {
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
   '/servicios/seo': typeof ServiciosSeoRoute
+  '/comunicacion/': typeof ComunicacionIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,11 +169,11 @@ export interface FileRouteTypes {
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
     | '/servicios/seo'
+    | '/comunicacion/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/actualizaciones'
-    | '/comunicacion'
     | '/configuracion'
     | '/entregables'
     | '/invitaciones'
@@ -177,6 +185,7 @@ export interface FileRouteTypes {
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
     | '/servicios/seo'
+    | '/comunicacion'
   id:
     | '__root__'
     | '/'
@@ -193,12 +202,13 @@ export interface FileRouteTypes {
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
     | '/servicios/seo'
+    | '/comunicacion/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ActualizacionesRoute: typeof ActualizacionesRoute
-  ComunicacionRoute: typeof ComunicacionRoute
+  ComunicacionRoute: typeof ComunicacionRouteWithChildren
   ConfiguracionRoute: typeof ConfiguracionRoute
   EntregablesRoute: typeof EntregablesRoute
   InvitacionesRoute: typeof InvitacionesRoute
@@ -284,6 +294,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunicacion/': {
+      id: '/comunicacion/'
+      path: '/'
+      fullPath: '/comunicacion/'
+      preLoaderRoute: typeof ComunicacionIndexRouteImport
+      parentRoute: typeof ComunicacionRoute
+    }
     '/servicios/seo': {
       id: '/servicios/seo'
       path: '/servicios/seo'
@@ -315,10 +332,22 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ComunicacionRouteChildren {
+  ComunicacionIndexRoute: typeof ComunicacionIndexRoute
+}
+
+const ComunicacionRouteChildren: ComunicacionRouteChildren = {
+  ComunicacionIndexRoute: ComunicacionIndexRoute,
+}
+
+const ComunicacionRouteWithChildren = ComunicacionRoute._addFileChildren(
+  ComunicacionRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActualizacionesRoute: ActualizacionesRoute,
-  ComunicacionRoute: ComunicacionRoute,
+  ComunicacionRoute: ComunicacionRouteWithChildren,
   ConfiguracionRoute: ConfiguracionRoute,
   EntregablesRoute: EntregablesRoute,
   InvitacionesRoute: InvitacionesRoute,
