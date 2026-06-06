@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Home, Palette, Search, Workflow, Bot, Film, ListChecks, FolderOpen,
   BookMarked, MessageCircle, TrendingUp, Users, ChevronsUpDown, Plus, Send, Settings,
-  Check, Shield, User as UserIcon, Mail,
+  Check, Shield, User as UserIcon, Mail, Smartphone, Calendar,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -189,10 +189,19 @@ export function AppSidebar() {
         <NavItem to="/recursos" icon={BookMarked} label="Documentos" />
 
         <SectionLabel>Comunicación</SectionLabel>
-        <NavItem to="/comunicacion" icon={MessageCircle} label="Canales" />
+        <div className="space-y-0.5 pl-3">
+          <NavItem to="/comunicacion" icon={Smartphone} label="WhatsApp" />
+          <NavItem to="/comunicacion" icon={Calendar} label="Agendar reunión" />
+          <NavItem to="/comunicacion" icon={Mail} label="Email" />
+        </div>
 
         <SectionLabel>Resultados</SectionLabel>
-        <NavItem to="/resultados" icon={TrendingUp} label="Métricas" />
+        <div className="space-y-0.5 pl-3">
+          <NavItem to="/resultados" icon={Palette} label="Sitio web" />
+          <NavItem to="/resultados" icon={Search} label="SEO y GMB" />
+          <NavItem to="/resultados" icon={Workflow} label="Go High Level" />
+          <NavItem to="/resultados" icon={Bot} label="Agentes de IA" />
+        </div>
 
         <SectionLabel>Miembros</SectionLabel>
         <NavItem to="/miembros" icon={Users} label="Equipo" />
