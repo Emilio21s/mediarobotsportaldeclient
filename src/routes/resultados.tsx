@@ -1,25 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { TrendingUp, TrendingDown, Minus, Plus, Trash2, Pencil, LayoutGrid } from "lucide-react";
-import { toast } from "sonner";
-import { getServicio, portalData } from "@/data/portalData";
-import { PageHeader } from "@/components/layout/PageHeader";
-import { useSession } from "@/hooks/useSession";
-import { useMetricsOverrides, type Metric, type MetricStatus } from "@/hooks/useMetricsOverrides";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import type { ServicioSlug } from "@/types/portal";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/resultados")({
   head: () => ({ meta: [{ title: "Resultados · Media Robots" }, { name: "description", content: "Métricas y resultados de cada servicio." }] }),
-  component: Page,
+  component: () => <Outlet />,
 });
 
 function trendIcon(delta: string) {
