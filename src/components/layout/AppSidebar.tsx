@@ -190,17 +190,17 @@ export function AppSidebar() {
 
         <SectionLabel>Comunicación</SectionLabel>
         <div className="space-y-0.5 pl-3">
-          <NavItem to="/comunicacion" icon={Smartphone} label="WhatsApp" />
-          <NavItem to="/comunicacion" icon={Calendar} label="Agendar reunión" />
-          <NavItem to="/comunicacion" icon={Mail} label="Email" />
+          <NavItem to="/comunicacion/whatsapp" icon={Smartphone} label="WhatsApp" />
+          <NavItem to="/comunicacion/agendar" icon={Calendar} label="Agendar reunión" />
+          <NavItem to="/comunicacion/email" icon={Mail} label="Email" />
         </div>
 
         <SectionLabel>Resultados</SectionLabel>
         <div className="space-y-0.5 pl-3">
-          <NavItem to="/resultados" icon={Palette} label="Sitio web" />
-          <NavItem to="/resultados" icon={Search} label="SEO y GMB" />
-          <NavItem to="/resultados" icon={Workflow} label="Go High Level" />
-          <NavItem to="/resultados" icon={Bot} label="Agentes de IA" />
+          <NavItem to="/resultados/sitio-web" icon={Palette} label="Sitio web" />
+          <NavItem to="/resultados/seo-gmb" icon={Search} label="SEO y GMB" />
+          <NavItem to="/resultados/go-high-level" icon={Workflow} label="Go High Level" />
+          <NavItem to="/resultados/agentes-ia" icon={Bot} label="Agentes de IA" />
         </div>
 
         <SectionLabel>Miembros</SectionLabel>
