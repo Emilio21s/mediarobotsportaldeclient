@@ -25,6 +25,7 @@ import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-
 import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
 import { Route as ServiciosAgentesIaRouteImport } from './routes/servicios.agentes-ia'
 import { Route as ComunicacionWhatsappRouteImport } from './routes/comunicacion.whatsapp'
+import { Route as ComunicacionEmailRouteImport } from './routes/comunicacion.email'
 import { Route as ComunicacionAgendarRouteImport } from './routes/comunicacion.agendar'
 
 const ResultadosRoute = ResultadosRouteImport.update({
@@ -107,6 +108,11 @@ const ComunicacionWhatsappRoute = ComunicacionWhatsappRouteImport.update({
   path: '/whatsapp',
   getParentRoute: () => ComunicacionRoute,
 } as any)
+const ComunicacionEmailRoute = ComunicacionEmailRouteImport.update({
+  id: '/email',
+  path: '/email',
+  getParentRoute: () => ComunicacionRoute,
+} as any)
 const ComunicacionAgendarRoute = ComunicacionAgendarRouteImport.update({
   id: '/agendar',
   path: '/agendar',
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
   '/comunicacion/agendar': typeof ComunicacionAgendarRoute
+  '/comunicacion/email': typeof ComunicacionEmailRoute
   '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
@@ -143,6 +150,7 @@ export interface FileRoutesByTo {
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
   '/comunicacion/agendar': typeof ComunicacionAgendarRoute
+  '/comunicacion/email': typeof ComunicacionEmailRoute
   '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
@@ -163,6 +171,7 @@ export interface FileRoutesById {
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
   '/comunicacion/agendar': typeof ComunicacionAgendarRoute
+  '/comunicacion/email': typeof ComunicacionEmailRoute
   '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
@@ -184,6 +193,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/resultados'
     | '/comunicacion/agendar'
+    | '/comunicacion/email'
     | '/comunicacion/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
@@ -202,6 +212,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/resultados'
     | '/comunicacion/agendar'
+    | '/comunicacion/email'
     | '/comunicacion/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
@@ -221,6 +232,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/resultados'
     | '/comunicacion/agendar'
+    | '/comunicacion/email'
     | '/comunicacion/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
@@ -360,6 +372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ComunicacionWhatsappRouteImport
       parentRoute: typeof ComunicacionRoute
     }
+    '/comunicacion/email': {
+      id: '/comunicacion/email'
+      path: '/email'
+      fullPath: '/comunicacion/email'
+      preLoaderRoute: typeof ComunicacionEmailRouteImport
+      parentRoute: typeof ComunicacionRoute
+    }
     '/comunicacion/agendar': {
       id: '/comunicacion/agendar'
       path: '/agendar'
@@ -372,12 +391,14 @@ declare module '@tanstack/react-router' {
 
 interface ComunicacionRouteChildren {
   ComunicacionAgendarRoute: typeof ComunicacionAgendarRoute
+  ComunicacionEmailRoute: typeof ComunicacionEmailRoute
   ComunicacionWhatsappRoute: typeof ComunicacionWhatsappRoute
   ComunicacionIndexRoute: typeof ComunicacionIndexRoute
 }
 
 const ComunicacionRouteChildren: ComunicacionRouteChildren = {
   ComunicacionAgendarRoute: ComunicacionAgendarRoute,
+  ComunicacionEmailRoute: ComunicacionEmailRoute,
   ComunicacionWhatsappRoute: ComunicacionWhatsappRoute,
   ComunicacionIndexRoute: ComunicacionIndexRoute,
 }
