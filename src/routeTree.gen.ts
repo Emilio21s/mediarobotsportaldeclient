@@ -19,11 +19,16 @@ import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as ComunicacionRouteImport } from './routes/comunicacion'
 import { Route as ActualizacionesRouteImport } from './routes/actualizaciones'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultadosIndexRouteImport } from './routes/resultados.index'
 import { Route as ComunicacionIndexRouteImport } from './routes/comunicacion.index'
 import { Route as ServiciosSeoRouteImport } from './routes/servicios.seo'
 import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-high-level'
 import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
 import { Route as ServiciosAgentesIaRouteImport } from './routes/servicios.agentes-ia'
+import { Route as ResultadosSitioWebRouteImport } from './routes/resultados.sitio-web'
+import { Route as ResultadosSeoGmbRouteImport } from './routes/resultados.seo-gmb'
+import { Route as ResultadosGoHighLevelRouteImport } from './routes/resultados.go-high-level'
+import { Route as ResultadosAgentesIaRouteImport } from './routes/resultados.agentes-ia'
 import { Route as ComunicacionWhatsappRouteImport } from './routes/comunicacion.whatsapp'
 import { Route as ComunicacionEmailRouteImport } from './routes/comunicacion.email'
 import { Route as ComunicacionAgendarRouteImport } from './routes/comunicacion.agendar'
@@ -78,6 +83,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultadosIndexRoute = ResultadosIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ResultadosRoute,
+} as any)
 const ComunicacionIndexRoute = ComunicacionIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -102,6 +112,26 @@ const ServiciosAgentesIaRoute = ServiciosAgentesIaRouteImport.update({
   id: '/servicios/agentes-ia',
   path: '/servicios/agentes-ia',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ResultadosSitioWebRoute = ResultadosSitioWebRouteImport.update({
+  id: '/sitio-web',
+  path: '/sitio-web',
+  getParentRoute: () => ResultadosRoute,
+} as any)
+const ResultadosSeoGmbRoute = ResultadosSeoGmbRouteImport.update({
+  id: '/seo-gmb',
+  path: '/seo-gmb',
+  getParentRoute: () => ResultadosRoute,
+} as any)
+const ResultadosGoHighLevelRoute = ResultadosGoHighLevelRouteImport.update({
+  id: '/go-high-level',
+  path: '/go-high-level',
+  getParentRoute: () => ResultadosRoute,
+} as any)
+const ResultadosAgentesIaRoute = ResultadosAgentesIaRouteImport.update({
+  id: '/agentes-ia',
+  path: '/agentes-ia',
+  getParentRoute: () => ResultadosRoute,
 } as any)
 const ComunicacionWhatsappRoute = ComunicacionWhatsappRouteImport.update({
   id: '/whatsapp',
@@ -129,15 +159,20 @@ export interface FileRoutesByFullPath {
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
-  '/resultados': typeof ResultadosRoute
+  '/resultados': typeof ResultadosRouteWithChildren
   '/comunicacion/agendar': typeof ComunicacionAgendarRoute
   '/comunicacion/email': typeof ComunicacionEmailRoute
   '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
+  '/resultados/agentes-ia': typeof ResultadosAgentesIaRoute
+  '/resultados/go-high-level': typeof ResultadosGoHighLevelRoute
+  '/resultados/seo-gmb': typeof ResultadosSeoGmbRoute
+  '/resultados/sitio-web': typeof ResultadosSitioWebRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
   '/servicios/seo': typeof ServiciosSeoRoute
   '/comunicacion/': typeof ComunicacionIndexRoute
+  '/resultados/': typeof ResultadosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -148,15 +183,19 @@ export interface FileRoutesByTo {
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
-  '/resultados': typeof ResultadosRoute
   '/comunicacion/agendar': typeof ComunicacionAgendarRoute
   '/comunicacion/email': typeof ComunicacionEmailRoute
   '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
+  '/resultados/agentes-ia': typeof ResultadosAgentesIaRoute
+  '/resultados/go-high-level': typeof ResultadosGoHighLevelRoute
+  '/resultados/seo-gmb': typeof ResultadosSeoGmbRoute
+  '/resultados/sitio-web': typeof ResultadosSitioWebRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
   '/servicios/seo': typeof ServiciosSeoRoute
   '/comunicacion': typeof ComunicacionIndexRoute
+  '/resultados': typeof ResultadosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,15 +208,20 @@ export interface FileRoutesById {
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
-  '/resultados': typeof ResultadosRoute
+  '/resultados': typeof ResultadosRouteWithChildren
   '/comunicacion/agendar': typeof ComunicacionAgendarRoute
   '/comunicacion/email': typeof ComunicacionEmailRoute
   '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
+  '/resultados/agentes-ia': typeof ResultadosAgentesIaRoute
+  '/resultados/go-high-level': typeof ResultadosGoHighLevelRoute
+  '/resultados/seo-gmb': typeof ResultadosSeoGmbRoute
+  '/resultados/sitio-web': typeof ResultadosSitioWebRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
   '/servicios/seo': typeof ServiciosSeoRoute
   '/comunicacion/': typeof ComunicacionIndexRoute
+  '/resultados/': typeof ResultadosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -195,11 +239,16 @@ export interface FileRouteTypes {
     | '/comunicacion/agendar'
     | '/comunicacion/email'
     | '/comunicacion/whatsapp'
+    | '/resultados/agentes-ia'
+    | '/resultados/go-high-level'
+    | '/resultados/seo-gmb'
+    | '/resultados/sitio-web'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
     | '/servicios/seo'
     | '/comunicacion/'
+    | '/resultados/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,15 +259,19 @@ export interface FileRouteTypes {
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
-    | '/resultados'
     | '/comunicacion/agendar'
     | '/comunicacion/email'
     | '/comunicacion/whatsapp'
+    | '/resultados/agentes-ia'
+    | '/resultados/go-high-level'
+    | '/resultados/seo-gmb'
+    | '/resultados/sitio-web'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
     | '/servicios/seo'
     | '/comunicacion'
+    | '/resultados'
   id:
     | '__root__'
     | '/'
@@ -234,11 +287,16 @@ export interface FileRouteTypes {
     | '/comunicacion/agendar'
     | '/comunicacion/email'
     | '/comunicacion/whatsapp'
+    | '/resultados/agentes-ia'
+    | '/resultados/go-high-level'
+    | '/resultados/seo-gmb'
+    | '/resultados/sitio-web'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
     | '/servicios/seo'
     | '/comunicacion/'
+    | '/resultados/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -251,7 +309,7 @@ export interface RootRouteChildren {
   MiembrosRoute: typeof MiembrosRoute
   ProximosPasosRoute: typeof ProximosPasosRoute
   RecursosRoute: typeof RecursosRoute
-  ResultadosRoute: typeof ResultadosRoute
+  ResultadosRoute: typeof ResultadosRouteWithChildren
   ServiciosAgentesIaRoute: typeof ServiciosAgentesIaRoute
   ServiciosDisenoWebRoute: typeof ServiciosDisenoWebRoute
   ServiciosGoHighLevelRoute: typeof ServiciosGoHighLevelRoute
@@ -330,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/resultados/': {
+      id: '/resultados/'
+      path: '/'
+      fullPath: '/resultados/'
+      preLoaderRoute: typeof ResultadosIndexRouteImport
+      parentRoute: typeof ResultadosRoute
+    }
     '/comunicacion/': {
       id: '/comunicacion/'
       path: '/'
@@ -364,6 +429,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/servicios/agentes-ia'
       preLoaderRoute: typeof ServiciosAgentesIaRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/resultados/sitio-web': {
+      id: '/resultados/sitio-web'
+      path: '/sitio-web'
+      fullPath: '/resultados/sitio-web'
+      preLoaderRoute: typeof ResultadosSitioWebRouteImport
+      parentRoute: typeof ResultadosRoute
+    }
+    '/resultados/seo-gmb': {
+      id: '/resultados/seo-gmb'
+      path: '/seo-gmb'
+      fullPath: '/resultados/seo-gmb'
+      preLoaderRoute: typeof ResultadosSeoGmbRouteImport
+      parentRoute: typeof ResultadosRoute
+    }
+    '/resultados/go-high-level': {
+      id: '/resultados/go-high-level'
+      path: '/go-high-level'
+      fullPath: '/resultados/go-high-level'
+      preLoaderRoute: typeof ResultadosGoHighLevelRouteImport
+      parentRoute: typeof ResultadosRoute
+    }
+    '/resultados/agentes-ia': {
+      id: '/resultados/agentes-ia'
+      path: '/agentes-ia'
+      fullPath: '/resultados/agentes-ia'
+      preLoaderRoute: typeof ResultadosAgentesIaRouteImport
+      parentRoute: typeof ResultadosRoute
     }
     '/comunicacion/whatsapp': {
       id: '/comunicacion/whatsapp'
@@ -407,6 +500,26 @@ const ComunicacionRouteWithChildren = ComunicacionRoute._addFileChildren(
   ComunicacionRouteChildren,
 )
 
+interface ResultadosRouteChildren {
+  ResultadosAgentesIaRoute: typeof ResultadosAgentesIaRoute
+  ResultadosGoHighLevelRoute: typeof ResultadosGoHighLevelRoute
+  ResultadosSeoGmbRoute: typeof ResultadosSeoGmbRoute
+  ResultadosSitioWebRoute: typeof ResultadosSitioWebRoute
+  ResultadosIndexRoute: typeof ResultadosIndexRoute
+}
+
+const ResultadosRouteChildren: ResultadosRouteChildren = {
+  ResultadosAgentesIaRoute: ResultadosAgentesIaRoute,
+  ResultadosGoHighLevelRoute: ResultadosGoHighLevelRoute,
+  ResultadosSeoGmbRoute: ResultadosSeoGmbRoute,
+  ResultadosSitioWebRoute: ResultadosSitioWebRoute,
+  ResultadosIndexRoute: ResultadosIndexRoute,
+}
+
+const ResultadosRouteWithChildren = ResultadosRoute._addFileChildren(
+  ResultadosRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ActualizacionesRoute: ActualizacionesRoute,
@@ -417,7 +530,7 @@ const rootRouteChildren: RootRouteChildren = {
   MiembrosRoute: MiembrosRoute,
   ProximosPasosRoute: ProximosPasosRoute,
   RecursosRoute: RecursosRoute,
-  ResultadosRoute: ResultadosRoute,
+  ResultadosRoute: ResultadosRouteWithChildren,
   ServiciosAgentesIaRoute: ServiciosAgentesIaRoute,
   ServiciosDisenoWebRoute: ServiciosDisenoWebRoute,
   ServiciosGoHighLevelRoute: ServiciosGoHighLevelRoute,
@@ -426,3 +539,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
