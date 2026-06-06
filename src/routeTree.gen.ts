@@ -24,6 +24,7 @@ import { Route as ServiciosSeoRouteImport } from './routes/servicios.seo'
 import { Route as ServiciosGoHighLevelRouteImport } from './routes/servicios.go-high-level'
 import { Route as ServiciosDisenoWebRouteImport } from './routes/servicios.diseno-web'
 import { Route as ServiciosAgentesIaRouteImport } from './routes/servicios.agentes-ia'
+import { Route as ComunicacionWhatsappRouteImport } from './routes/comunicacion.whatsapp'
 
 const ResultadosRoute = ResultadosRouteImport.update({
   id: '/resultados',
@@ -100,6 +101,11 @@ const ServiciosAgentesIaRoute = ServiciosAgentesIaRouteImport.update({
   path: '/servicios/agentes-ia',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunicacionWhatsappRoute = ComunicacionWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => ComunicacionRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
+  '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
+  '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
   '/resultados': typeof ResultadosRoute
+  '/comunicacion/whatsapp': typeof ComunicacionWhatsappRoute
   '/servicios/agentes-ia': typeof ServiciosAgentesIaRoute
   '/servicios/diseno-web': typeof ServiciosDisenoWebRoute
   '/servicios/go-high-level': typeof ServiciosGoHighLevelRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/proximos-pasos'
     | '/recursos'
     | '/resultados'
+    | '/comunicacion/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -181,6 +191,7 @@ export interface FileRouteTypes {
     | '/proximos-pasos'
     | '/recursos'
     | '/resultados'
+    | '/comunicacion/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
     | '/proximos-pasos'
     | '/recursos'
     | '/resultados'
+    | '/comunicacion/whatsapp'
     | '/servicios/agentes-ia'
     | '/servicios/diseno-web'
     | '/servicios/go-high-level'
@@ -329,14 +341,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServiciosAgentesIaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunicacion/whatsapp': {
+      id: '/comunicacion/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/comunicacion/whatsapp'
+      preLoaderRoute: typeof ComunicacionWhatsappRouteImport
+      parentRoute: typeof ComunicacionRoute
+    }
   }
 }
 
 interface ComunicacionRouteChildren {
+  ComunicacionWhatsappRoute: typeof ComunicacionWhatsappRoute
   ComunicacionIndexRoute: typeof ComunicacionIndexRoute
 }
 
 const ComunicacionRouteChildren: ComunicacionRouteChildren = {
+  ComunicacionWhatsappRoute: ComunicacionWhatsappRoute,
   ComunicacionIndexRoute: ComunicacionIndexRoute,
 }
 
