@@ -88,7 +88,7 @@ export function AppSidebar() {
   const isAdmin = role === "Agency_Admin";
 
   return (
-    <aside className="hidden h-screen w-[260px] shrink-0 flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] md:sticky md:top-0 md:flex">
+    <aside className="hidden h-screen w-[260px] shrink-0 flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar)] md:sticky md:top-0 md:flex bg-zinc-50">
       {/* Brand */}
       <div className="px-4 pt-4 pb-3">
         <div className="text-[15px] font-bold tracking-tight text-foreground">
