@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Mail } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 
-const EMAIL = "emilio.sandoval@mediarobots.com";
+const EMAIL = "emilio@mediarobots.me";
 
 export const Route = createFileRoute("/comunicacion/email")({
   head: () => ({ meta: [{ title: "Email · Comunicación · Media Robots" }, { name: "description", content: "Email para documentos formales y facturación." }] }),
@@ -33,7 +33,7 @@ function Page() {
         </p>
         <a
           href={`mailto:${EMAIL}`}
-          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 bg-[#0f0f10]"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 bg-[#0f0f10] font-sans"
         >
           Redactar email →
         </a>
