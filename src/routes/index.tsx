@@ -148,7 +148,7 @@ function Home() {
             {ultimosEntregables.map((e) => (
               <li key={e.id} className="flex items-center justify-between rounded-lg bg-background px-3 py-2 bg-transparent">
                 <div className="flex items-center gap-2.5">
-                  <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                  <FileText className="text-muted-foreground w-[18px] h-[18px] text-[#0f0f10]" />
                   <div>
                     <div className="text-[12px] font-medium text-foreground">{e.nombre}</div>
                     <div className="text-[11px] text-muted-foreground">{e.servicio} · {e.fecha}</div>
