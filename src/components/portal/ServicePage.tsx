@@ -238,7 +238,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           ) : (
             <ul className="space-y-2.5">
               {looms.map((l) => (
-                <li key={l.id} className="rounded-lg bg-background p-3">
+                <li key={l.id} className="rounded-lg bg-background p-3 bg-zinc-50">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Semana {l.semana}</span>
                     <span className="text-[10px] text-muted-foreground">{l.duracion}</span>
