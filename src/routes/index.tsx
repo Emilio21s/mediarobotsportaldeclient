@@ -92,7 +92,7 @@ function Home() {
                   </div>
                   <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-[var(--border-soft)]">
                     <div
-                      className="h-full rounded-full transition-[width] duration-700 ease-out"
+                      className="h-full rounded-full transition-[width] duration-700 ease-out bg-[#19191a]"
                       style={{ width: mounted ? `${s.avance}%` : "0%", backgroundColor: s.color }}
                     />
                   </div>
