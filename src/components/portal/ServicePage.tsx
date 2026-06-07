@@ -196,7 +196,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           ) : (
             <ul className="space-y-2">
               {entregables.map((e) => (
-                <li key={e.id} className="group flex items-center justify-between rounded-lg bg-background px-3 py-2">
+                <li key={e.id} className="group flex items-center justify-between rounded-lg bg-background px-3 py-2 bg-transparent">
                   <div className="flex min-w-0 items-center gap-2.5">
                     <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <div className="min-w-0">

@@ -146,7 +146,7 @@ function Home() {
           </div>
           <ul className="space-y-2">
             {ultimosEntregables.map((e) => (
-              <li key={e.id} className="flex items-center justify-between rounded-lg bg-background px-3 py-2">
+              <li key={e.id} className="flex items-center justify-between rounded-lg bg-background px-3 py-2 bg-transparent">
                 <div className="flex items-center gap-2.5">
                   <FileText className="h-3.5 w-3.5 text-muted-foreground" />
                   <div>
