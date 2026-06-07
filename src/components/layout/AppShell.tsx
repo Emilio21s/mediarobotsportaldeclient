@@ -6,7 +6,7 @@ export function AppShell() {
   return (
     <div className="flex min-h-screen w-full bg-background">
       <AppSidebar />
-      <main className="flex-1 pb-20 md:pb-0">
+      <main className="flex-1 pb-20 md:pb-0 bg-white">
         <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-8 sm:py-10 bg-white">
           <Outlet />
         </div>
