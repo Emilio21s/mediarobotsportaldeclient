@@ -301,7 +301,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
           ) : (
             <ul className="grid grid-cols-2 gap-2">
               {metricas.map((m) => (
-                <li key={m.id} className="rounded-lg bg-background p-3">
+                <li key={m.id} className="rounded-lg bg-background p-3 bg-zinc-50">
                   <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.label}</div>
                   <div className="mt-1 text-[18px] font-semibold text-foreground">{m.valor}</div>
                   <div className="text-[11px]" style={{ color: m.positivo ? servicio.color : "var(--muted-foreground)" }}>{m.delta}</div>
