@@ -116,7 +116,7 @@ function Home() {
           >
             <h2 className="mb-3 text-[13px] font-semibold text-foreground">Último video</h2>
             <div className="flex items-center justify-between">
-              <span className="rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-transparent border-[#00001f]/[0.09] text-[#0f0f10]">
+              <span className="rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-transparent border-[#00001f]/[0.09] text-[#0f0f10] border border-solid font-sans">
                 Semana {ultimoLoom.semana}
               </span>
               <span className="text-[11px] text-muted-foreground">{ultimoLoom.duracion} · {ultimoLoom.fecha}</span>
