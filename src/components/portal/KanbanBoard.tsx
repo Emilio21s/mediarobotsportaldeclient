@@ -106,7 +106,7 @@ export function KanbanBoard({ servicioSlug }: { servicioSlug?: string } = {}) {
               onDragLeave={() => setOverCol((c) => (c === col.id ? null : c))}
               onDrop={(e) => onDrop(e, col.id)}
               className={`flex flex-col rounded-xl border bg-muted/30 p-2.5 transition-colors ${
-                isOver ? "border-primary bg-primary/5" : "border-border bg-[#fcfaee]"
+                isOver ? "border-primary bg-primary/5" : "border-border bg-[#fffae0]"
               }`}
             >
               <header className="mb-2 flex items-center justify-between px-1.5">
