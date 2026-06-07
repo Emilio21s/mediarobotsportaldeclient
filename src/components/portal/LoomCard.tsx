@@ -37,7 +37,7 @@ export function LoomCard({ loom, expanded, onActivate }: Props) {
       }}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-transparent border-[#00001f]/[0.09] border border-solid font-sans rounded-md text-gray-950">
+        <span className="bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-transparent border-[#00001f]/[0.09] border border-solid font-sans text-gray-950 rounded-md">
           Semana {loom.semana}
         </span>
         <span className="text-[11px] text-muted-foreground">{loom.duracion}</span>
