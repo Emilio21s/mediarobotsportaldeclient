@@ -26,7 +26,7 @@ export function WeeklyUpdates() {
             Cada viernes antes de las 6pm — Emilio te explica qué avanzamos esta semana
           </p>
         </div>
-        <span className="shrink-0 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+        <span className="shrink-0 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-[#00001f]/[0.06]">
           {looms.length} videos
         </span>
       </div>
