@@ -137,7 +137,7 @@ function Page() {
             <div className="flex h-full flex-col">
               <SheetHeader className="border-b border-border p-5">
                 <div className="flex items-center gap-2">
-                  <span className="bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground bg-transparent border-[#00001f]/[0.09] border border-solid font-sans text-gray-950 rounded-md">
+                  <span className="bg-primary px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary-foreground border-[#00001f]/[0.09] border border-solid font-sans text-slate-950 bg-transparent rounded-md">
                     Semana {viewLoom.semana}
                   </span>
                   <span className="text-[11px] text-muted-foreground">{viewLoom.fecha} · {viewLoom.duracion}</span>
