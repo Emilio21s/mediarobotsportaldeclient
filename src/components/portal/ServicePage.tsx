@@ -142,7 +142,7 @@ export function ServicePage({ servicio }: { servicio: Servicio }) {
         </div>
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-[var(--border-soft)]">
           <div
-            className="h-full rounded-full transition-[width] duration-700 ease-out bg-[#19191a]"
+            className="h-full rounded-full transition-[width] duration-700 ease-out bg-[#19191a] border-[#19191a]"
             style={{ width: mounted ? `${avanceFinal}%` : "0%", backgroundColor: servicio.color }}
           />
         </div>
