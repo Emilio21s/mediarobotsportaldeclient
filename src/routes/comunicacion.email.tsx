@@ -33,7 +33,7 @@ function Page() {
         </p>
         <a
           href={`mailto:${EMAIL}`}
-          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          className="mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 bg-[#0f0f10]"
         >
           Redactar email →
         </a>
