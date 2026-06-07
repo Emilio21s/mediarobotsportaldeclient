@@ -45,7 +45,7 @@ function NavItem({
   return (
     <Link
       to={to}
-      className="group mx-1.5 flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-foreground transition-colors hover:bg-[var(--sidebar-hover)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:font-medium active bg-[#00001a]/5"
+      className="group mx-1.5 flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-[13px] text-foreground transition-colors hover:bg-[var(--sidebar-hover)] data-[active=true]:bg-[var(--sidebar-accent)] data-[active=true]:font-medium"
       data-active={isActive}
     >
       <Icon className="h-4 w-4 shrink-0 text-muted-foreground group-data-[active=true]:text-foreground" strokeWidth={1.75} />
