@@ -15,7 +15,7 @@ export function Communication() {
       </h2>
       <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {channels.map(({ Icon, title, detail }) => (
-          <div key={title} className="rounded-lg bg-background p-3">
+          <div key={title} className="rounded-lg bg-background p-3 bg-zinc-50">
             <div className="flex items-center gap-2">
               <Icon className="h-3.5 w-3.5 text-primary" />
               <span className="text-[12px] font-semibold text-foreground">{title}</span>
