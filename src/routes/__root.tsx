@@ -6,7 +6,10 @@ import {
   useRouter,
   HeadContent,
   Scripts,
+  useRouterState,
+  useNavigate,
 } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { AppShell } from "@/components/layout/AppShell";
@@ -141,7 +144,7 @@ function RootComponent() {
                 <RecursosOverridesProvider>
                   <MetricsOverridesProvider>
                     <InvitationsProvider>
-                      <AppShell />
+                      <RootContent />
                       <Toaster />
                     </InvitationsProvider>
                   </MetricsOverridesProvider>
@@ -153,4 +156,20 @@ function RootComponent() {
       </SessionProvider>
     </QueryClientProvider>
   );
+}
+
+function RootContent() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
+  const isLogin = pathname === "/login";
+
+  useEffect(() => {
+    if (isLogin) return;
+    let hasSession = false;
+    try { hasSession = !!localStorage.getItem("mr.session"); } catch { /* noop */ }
+    if (!hasSession) navigate({ to: "/login" });
+  }, [isLogin, pathname, navigate]);
+
+  if (isLogin) return <Outlet />;
+  return <AppShell />;
 }
