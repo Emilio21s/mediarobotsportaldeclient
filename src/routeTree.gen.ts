@@ -13,6 +13,7 @@ import { Route as ResultadosRouteImport } from './routes/resultados'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as ProximosPasosRouteImport } from './routes/proximos-pasos'
 import { Route as MiembrosRouteImport } from './routes/miembros'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as InvitacionesRouteImport } from './routes/invitaciones'
 import { Route as EntregablesRouteImport } from './routes/entregables'
 import { Route as ConfiguracionRouteImport } from './routes/configuracion'
@@ -51,6 +52,11 @@ const ProximosPasosRoute = ProximosPasosRouteImport.update({
 const MiembrosRoute = MiembrosRouteImport.update({
   id: '/miembros',
   path: '/miembros',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InvitacionesRoute = InvitacionesRouteImport.update({
@@ -156,6 +162,7 @@ export interface FileRoutesByFullPath {
   '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/invitaciones': typeof InvitacionesRoute
+  '/login': typeof LoginRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
@@ -180,6 +187,7 @@ export interface FileRoutesByTo {
   '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/invitaciones': typeof InvitacionesRoute
+  '/login': typeof LoginRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
@@ -205,6 +213,7 @@ export interface FileRoutesById {
   '/configuracion': typeof ConfiguracionRoute
   '/entregables': typeof EntregablesRoute
   '/invitaciones': typeof InvitacionesRoute
+  '/login': typeof LoginRoute
   '/miembros': typeof MiembrosRoute
   '/proximos-pasos': typeof ProximosPasosRoute
   '/recursos': typeof RecursosRoute
@@ -232,6 +241,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/entregables'
     | '/invitaciones'
+    | '/login'
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/entregables'
     | '/invitaciones'
+    | '/login'
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/configuracion'
     | '/entregables'
     | '/invitaciones'
+    | '/login'
     | '/miembros'
     | '/proximos-pasos'
     | '/recursos'
@@ -306,6 +318,7 @@ export interface RootRouteChildren {
   ConfiguracionRoute: typeof ConfiguracionRoute
   EntregablesRoute: typeof EntregablesRoute
   InvitacionesRoute: typeof InvitacionesRoute
+  LoginRoute: typeof LoginRoute
   MiembrosRoute: typeof MiembrosRoute
   ProximosPasosRoute: typeof ProximosPasosRoute
   RecursosRoute: typeof RecursosRoute
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       path: '/miembros'
       fullPath: '/miembros'
       preLoaderRoute: typeof MiembrosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invitaciones': {
@@ -527,6 +547,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracionRoute: ConfiguracionRoute,
   EntregablesRoute: EntregablesRoute,
   InvitacionesRoute: InvitacionesRoute,
+  LoginRoute: LoginRoute,
   MiembrosRoute: MiembrosRoute,
   ProximosPasosRoute: ProximosPasosRoute,
   RecursosRoute: RecursosRoute,
@@ -539,13 +560,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
