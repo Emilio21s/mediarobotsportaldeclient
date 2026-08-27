@@ -1,15 +1,11 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
-  Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
   HeadContent,
   Scripts,
-  useRouterState,
-  useNavigate,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
 
 import appCss from "../styles.css?url";
 import { AppShell } from "@/components/layout/AppShell";
@@ -159,17 +155,6 @@ function RootComponent() {
 }
 
 function RootContent() {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const navigate = useNavigate();
-  const isLogin = pathname === "/login";
-
-  useEffect(() => {
-    if (isLogin) return;
-    let hasSession = false;
-    try { hasSession = !!localStorage.getItem("mr.session"); } catch { /* noop */ }
-    if (!hasSession) navigate({ to: "/login" });
-  }, [isLogin, pathname, navigate]);
-
-  if (isLogin) return <Outlet />;
+  // Login desactivado temporalmente: todas las rutas son accesibles sin sesión.
   return <AppShell />;
 }
