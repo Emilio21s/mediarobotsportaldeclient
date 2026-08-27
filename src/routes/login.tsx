@@ -40,15 +40,30 @@ function LoginPage() {
       setError("Por favor completa todos los campos");
       return;
     }
+    const user = autenticar(email, password);
+    if (!user) {
+      setError("Correo o contraseña incorrectos");
+      return;
+    }
     setError("");
-    try { localStorage.setItem("mr.session", "1"); } catch { /* noop */ }
+    try {
+      localStorage.setItem("mr.session", "1");
+      localStorage.setItem("mr.role", user.role);
+      localStorage.setItem("mr.user", JSON.stringify({ email: user.email, nombre: user.nombre }));
+    } catch { /* noop */ }
     navigate({ to: "/" });
   };
 
   const handleGoogle = () => {
-    try { localStorage.setItem("mr.session", "1"); } catch { /* noop */ }
+    const user = usuarios[0];
+    try {
+      localStorage.setItem("mr.session", "1");
+      localStorage.setItem("mr.role", user.role);
+      localStorage.setItem("mr.user", JSON.stringify({ email: user.email, nombre: user.nombre }));
+    } catch { /* noop */ }
     navigate({ to: "/" });
   };
+
 
   return (
     <div className="flex min-h-screen w-full bg-white">
