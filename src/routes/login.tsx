@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { autenticar, usuarios } from "@/data/usuarios";
+
 
 export const Route = createFileRoute("/login")({
   head: () => ({
