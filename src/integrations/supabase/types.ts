@@ -26,6 +26,7 @@ export type Database = {
           nombre_doctor: string
           paquete: string
           servicios_contratados: Database["public"]["Enums"]["servicio_slug"][]
+          slug: string | null
           updated_at: string
           whatsapp_link: string
         }
@@ -40,6 +41,7 @@ export type Database = {
           nombre_doctor: string
           paquete?: string
           servicios_contratados?: Database["public"]["Enums"]["servicio_slug"][]
+          slug?: string | null
           updated_at?: string
           whatsapp_link?: string
         }
@@ -54,6 +56,7 @@ export type Database = {
           nombre_doctor?: string
           paquete?: string
           servicios_contratados?: Database["public"]["Enums"]["servicio_slug"][]
+          slug?: string | null
           updated_at?: string
           whatsapp_link?: string
         }
