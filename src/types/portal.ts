@@ -52,10 +52,11 @@ export interface Servicio {
 }
 
 export interface Loom {
-  id: number;
+  id: string;
   clinicaId: string;
   semana: number;
   fecha: string;
+  fechaIso?: string;
   titulo: string;
   duracion: string;
   tags: string[];
