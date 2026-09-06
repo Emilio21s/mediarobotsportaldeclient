@@ -1,6 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { portalData } from "@/data/portalData";
+import { isUuid } from "@/lib/portalMappers";
 import type { ServicioSlug } from "@/types/portal";
 
 export type MetricStatus = "active" | "pending_setup";
@@ -10,17 +12,9 @@ export interface Metric {
   service_id: ServicioSlug;
   metric_name: string;
   current_value: string;
-  trend_percentage: string; // e.g. "+18%", "-3%", "0%"
+  trend_percentage: string;
   status: MetricStatus;
 }
-
-type Store = Record<string, Metric[]>; // clinicaId -> metrics
-const KEY = "mr.metrics.v1";
-
-function load(): Store {
-  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; } catch { return {}; }
-}
-function save(s: Store) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* noop */ } }
 
 type Ctx = {
   getMetrics: () => Metric[];
@@ -34,44 +28,69 @@ const Context = createContext<Ctx | null>(null);
 export function MetricsOverridesProvider({ children }: { children: ReactNode }) {
   const { activeClinic } = useSession();
   const clinicaId = activeClinic.id;
-  const [store, setStore] = useState<Store>({});
+  const queryClient = useQueryClient();
+  const queryKey = ["metricas", clinicaId];
 
-  useEffect(() => { setStore(load()); }, [clinicaId]);
-
-  const persist = useCallback((next: Store) => { setStore(next); save(next); }, []);
-
-  const defaults = useCallback((): Metric[] => {
-    return portalData.resultados
-      .filter((m) => m.clinicaId === clinicaId)
-      .map((m) => ({
-        id: `seed-${m.id}`,
-        service_id: m.servicioSlug,
-        metric_name: m.label,
-        current_value: m.valor,
-        trend_percentage: m.delta,
-        status: "active" as MetricStatus,
+  const { data: metrics = [] } = useQuery({
+    queryKey,
+    enabled: !!clinicaId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("metricas")
+        .select("*")
+        .eq("clinica_id", clinicaId)
+        .order("created_at");
+      if (error) throw error;
+      return (data ?? []).map((row): Metric => ({
+        id: row.id,
+        service_id: row.servicio_slug as ServicioSlug,
+        metric_name: row.metric_name,
+        current_value: row.current_value,
+        trend_percentage: row.trend_percentage,
+        status: (row.status as MetricStatus) ?? "active",
       }));
-  }, [clinicaId]);
-
-  const getMetrics = useCallback(
-    () => store[clinicaId] ?? defaults(),
-    [store, clinicaId, defaults],
-  );
-
-  const setList = (list: Metric[]) => persist({ ...store, [clinicaId]: list });
-
-  const value = useMemo<Ctx>(() => ({
-    getMetrics,
-    upsertMetric: (m) => {
-      const list = getMetrics();
-      const idx = list.findIndex((x) => x.id === m.id);
-      const next = idx >= 0 ? list.map((x) => (x.id === m.id ? m : x)) : [...list, m];
-      setList(next);
     },
-    deleteMetric: (id) => setList(getMetrics().filter((m) => m.id !== id)),
-    newId: () => `m-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [getMetrics, store, clinicaId]);
+  });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey });
+
+  const upsertMut = useMutation({
+    mutationFn: async (m: Metric) => {
+      const payload = {
+        clinica_id: clinicaId,
+        servicio_slug: m.service_id,
+        metric_name: m.metric_name,
+        current_value: m.current_value,
+        trend_percentage: m.trend_percentage,
+        positivo: !m.trend_percentage.trim().startsWith("-"),
+        status: m.status,
+      };
+      const { error } = isUuid(m.id)
+        ? await supabase.from("metricas").update(payload as never).eq("id", m.id)
+        : await supabase.from("metricas").insert(payload as never);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("metricas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const value = useMemo<Ctx>(
+    () => ({
+      getMetrics: () => metrics,
+      upsertMetric: (m) => upsertMut.mutate(m),
+      deleteMetric: (id) => deleteMut.mutate(id),
+      newId: () => `new-${Date.now()}`,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [metrics, clinicaId],
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
