@@ -1,21 +1,14 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { portalData } from "@/data/portalData";
+import { mapLoom, isUuid } from "@/lib/portalMappers";
 import type { Loom } from "@/types/portal";
-
-type Store = Record<string, Loom[]>; // clinicaId -> looms (replaces defaults when present)
-
-const KEY = "mr.looms.v1";
-
-function load(): Store {
-  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; } catch { return {}; }
-}
-function save(s: Store) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* noop */ } }
 
 type Ctx = {
   getLooms: () => Loom[];
   upsertLoom: (loom: Loom) => void;
-  deleteLoom: (id: number) => void;
+  deleteLoom: (id: string) => void;
 };
 
 const Context = createContext<Ctx | null>(null);
@@ -23,36 +16,64 @@ const Context = createContext<Ctx | null>(null);
 export function LoomsOverridesProvider({ children }: { children: ReactNode }) {
   const { activeClinic } = useSession();
   const clinicaId = activeClinic.id;
-  const [store, setStore] = useState<Store>({});
+  const queryClient = useQueryClient();
+  const queryKey = ["looms", clinicaId];
 
-  useEffect(() => { setStore(load()); }, [clinicaId]);
-
-  const persist = useCallback((next: Store) => { setStore(next); save(next); }, []);
-
-  const defaults = useCallback(
-    () => portalData.looms.filter((l) => l.clinicaId === clinicaId),
-    [clinicaId],
-  );
-
-  const getLooms = useCallback(
-    () => store[clinicaId] ?? defaults(),
-    [store, clinicaId, defaults],
-  );
-
-  const setList = (list: Loom[]) => persist({ ...store, [clinicaId]: list });
-
-  const value = useMemo<Ctx>(() => ({
-    getLooms,
-    upsertLoom: (loom) => {
-      const list = getLooms();
-      const idx = list.findIndex((l) => l.id === loom.id);
-      const next = idx >= 0
-        ? list.map((l) => (l.id === loom.id ? loom : l))
-        : [...list, loom];
-      setList(next);
+  const { data: looms = [] } = useQuery({
+    queryKey,
+    enabled: !!clinicaId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("looms")
+        .select("*")
+        .eq("clinica_id", clinicaId)
+        .order("semana", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map(mapLoom);
     },
-    deleteLoom: (id) => setList(getLooms().filter((l) => l.id !== id)),
-  }), [getLooms, store, clinicaId]);
+  });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey });
+
+  const upsertMut = useMutation({
+    mutationFn: async (loom: Loom) => {
+      const payload = {
+        clinica_id: clinicaId,
+        semana: loom.semana,
+        fecha: loom.fechaIso || null,
+        titulo: loom.titulo,
+        duracion: loom.duracion,
+        tags: loom.tags,
+        servicios_slugs: loom.serviciosSlugs,
+        resumen: loom.resumen,
+        link_loom: loom.linkLoom,
+        visto_cliente: loom.vistoCliente,
+      };
+      const { error } = isUuid(loom.id)
+        ? await supabase.from("looms").update(payload as never).eq("id", loom.id)
+        : await supabase.from("looms").insert(payload as never);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("looms").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const value = useMemo<Ctx>(
+    () => ({
+      getLooms: () => looms,
+      upsertLoom: (loom) => upsertMut.mutate(loom),
+      deleteLoom: (id) => deleteMut.mutate(id),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [looms, clinicaId],
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
