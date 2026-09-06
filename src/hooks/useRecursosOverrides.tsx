@@ -1,21 +1,15 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { portalData } from "@/data/portalData";
+import { mapRecurso, isUuid } from "@/lib/portalMappers";
 import type { Recurso } from "@/types/portal";
-
-type Store = Record<string, Recurso[]>;
-const KEY = "mr.recursos.v1";
-
-function load(): Store {
-  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : {}; } catch { return {}; }
-}
-function save(s: Store) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* noop */ } }
 
 type Ctx = {
   getRecursos: () => Recurso[];
   upsertRecurso: (r: Recurso) => void;
-  deleteRecurso: (id: number) => void;
-  nextId: () => number;
+  deleteRecurso: (id: string) => void;
+  nextId: () => string;
 };
 
 const Context = createContext<Ctx | null>(null);
@@ -23,39 +17,61 @@ const Context = createContext<Ctx | null>(null);
 export function RecursosOverridesProvider({ children }: { children: ReactNode }) {
   const { activeClinic } = useSession();
   const clinicaId = activeClinic.id;
-  const [store, setStore] = useState<Store>({});
+  const queryClient = useQueryClient();
+  const queryKey = ["recursos", clinicaId];
 
-  useEffect(() => { setStore(load()); }, [clinicaId]);
-
-  const persist = useCallback((next: Store) => { setStore(next); save(next); }, []);
-
-  const defaults = useCallback(
-    () => portalData.recursos.filter((r) => r.clinicaId === clinicaId),
-    [clinicaId],
-  );
-
-  const getRecursos = useCallback(
-    () => store[clinicaId] ?? defaults(),
-    [store, clinicaId, defaults],
-  );
-
-  const setList = (list: Recurso[]) => persist({ ...store, [clinicaId]: list });
-
-  const value = useMemo<Ctx>(() => ({
-    getRecursos,
-    upsertRecurso: (r) => {
-      const list = getRecursos();
-      const idx = list.findIndex((x) => x.id === r.id);
-      const next = idx >= 0 ? list.map((x) => (x.id === r.id ? r : x)) : [...list, r];
-      setList(next);
+  const { data: recursos = [] } = useQuery({
+    queryKey,
+    enabled: !!clinicaId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("recursos")
+        .select("*")
+        .eq("clinica_id", clinicaId)
+        .order("created_at");
+      if (error) throw error;
+      return (data ?? []).map(mapRecurso);
     },
-    deleteRecurso: (id) => setList(getRecursos().filter((r) => r.id !== id)),
-    nextId: () => {
-      const list = getRecursos();
-      return list.length ? Math.max(...list.map((r) => r.id)) + 1 : 1;
+  });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey });
+
+  const upsertMut = useMutation({
+    mutationFn: async (r: Recurso) => {
+      const payload = {
+        clinica_id: clinicaId,
+        titulo: r.titulo,
+        descripcion: r.descripcion ?? "",
+        tipo: r.tipo,
+        categoria: r.categoria ?? "accesos",
+        link: r.link ?? "",
+      };
+      const { error } = isUuid(r.id)
+        ? await supabase.from("recursos").update(payload as never).eq("id", r.id)
+        : await supabase.from("recursos").insert(payload as never);
+      if (error) throw error;
     },
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [getRecursos, store, clinicaId]);
+    onSuccess: invalidate,
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("recursos").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const value = useMemo<Ctx>(
+    () => ({
+      getRecursos: () => recursos,
+      upsertRecurso: (r) => upsertMut.mutate(r),
+      deleteRecurso: (id) => deleteMut.mutate(id),
+      nextId: () => `new-${Date.now()}`,
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [recursos, clinicaId],
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
