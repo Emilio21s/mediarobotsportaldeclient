@@ -67,7 +67,7 @@ export interface Loom {
 }
 
 export interface Paso {
-  id: number;
+  id: string;
   clinicaId: string;
   fecha: string;
   fechaIso: string;
@@ -77,7 +77,7 @@ export interface Paso {
 }
 
 export interface Entregable {
-  id: number;
+  id: string;
   clinicaId: string;
   nombre: string;
   servicio: string;
@@ -85,11 +85,12 @@ export interface Entregable {
   version: string;
   status: "Borrador" | "Para revisión" | "Aprobado" | "Final entregado";
   fecha: string;
+  fechaIso?: string;
   statusColor: string;
 }
 
 export interface Recurso {
-  id: number;
+  id: string;
   clinicaId: string;
   titulo: string;
   descripcion: string;
@@ -105,7 +106,7 @@ export type RecursoCategoria =
   | "legal";
 
 export interface Metrica {
-  id: number;
+  id: string;
   clinicaId: string;
   servicioSlug: ServicioSlug;
   label: string;
@@ -115,7 +116,7 @@ export interface Metrica {
 }
 
 export interface Miembro {
-  id: number;
+  id: string;
   clinicaId: string;
   nombre: string;
   rol: string;
