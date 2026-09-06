@@ -79,7 +79,7 @@ export const portalData: PortalData = {
   ],
   looms: [
     {
-      id: 1,
+      id: "1",
       clinicaId: "garcia",
       semana: 1,
       fecha: "9 mayo 2026",
@@ -96,7 +96,7 @@ export const portalData: PortalData = {
       vistoCliente: true,
     },
     {
-      id: 2,
+      id: "2",
       clinicaId: "garcia",
       semana: 2,
       fecha: "16 mayo 2026",
@@ -113,7 +113,7 @@ export const portalData: PortalData = {
       vistoCliente: false,
     },
     {
-      id: 11,
+      id: "11",
       clinicaId: "sonrisas",
       semana: 4,
       fecha: "10 mayo 2026",
@@ -130,7 +130,7 @@ export const portalData: PortalData = {
       vistoCliente: true,
     },
     {
-      id: 21,
+      id: "21",
       clinicaId: "ortomax",
       semana: 1,
       fecha: "9 mayo 2026",
