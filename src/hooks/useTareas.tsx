@@ -1,5 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
+import { useAuth } from "@/hooks/useAuth";
 
 export type Prioridad = "alta" | "media" | "baja";
 export type Columna = "backlog" | "progreso" | "revision" | "completado";
@@ -26,60 +29,37 @@ export interface Tarea {
   comentarios: Comentario[];
 }
 
-const KEY = "mr.tareas.v1";
+const toDbEstado = (c: Columna) => (c === "progreso" ? "en-progreso" : c);
+const fromDbEstado = (e: string): Columna => (e === "en-progreso" ? "progreso" : (e as Columna));
 
-const seed = (clinicaId: string): Tarea[] => {
-  const base = Date.now();
-  const mk = (i: number, t: Partial<Tarea>): Tarea => ({
-    id: `${clinicaId}-${base}-${i}`,
-    clinicaId,
-    titulo: "",
-    prioridad: "media",
-    fechaEntrega: new Date(base + i * 86400000 * 3).toISOString().slice(0, 10),
-    columna: "backlog",
-    createdBy: "agency",
-    createdAt: new Date().toISOString(),
-    comentarios: [],
-    ...t,
-  });
-  if (clinicaId === "garcia") {
-    return [
-      mk(1, { titulo: "Definir wireframe del sitio", prioridad: "alta", columna: "completado", servicioSlug: "diseno-web" }),
-      mk(2, { titulo: "Mockup visual home + servicios", prioridad: "alta", columna: "revision", servicioSlug: "diseno-web" }),
-      mk(3, { titulo: "Optimizar perfil de Google Business", prioridad: "media", columna: "progreso", servicioSlug: "seo" }),
-      mk(4, { titulo: "Investigación de keywords locales", prioridad: "media", columna: "progreso", servicioSlug: "seo" }),
-      mk(5, { titulo: "Setup pipeline GHL", prioridad: "baja", columna: "backlog", servicioSlug: "go-high-level" }),
-      mk(6, { titulo: "Redactar copy de la home", prioridad: "media", columna: "backlog", servicioSlug: "diseno-web" }),
-    ];
-  }
-  if (clinicaId === "sonrisas") {
-    return [
-      mk(1, { titulo: "Ajustar guion del agente IA", prioridad: "alta", columna: "revision", servicioSlug: "agentes-ia" }),
-      mk(2, { titulo: "Reporte SEO mensual", prioridad: "media", columna: "completado", servicioSlug: "seo" }),
-      mk(3, { titulo: "Configurar campaña local", prioridad: "alta", columna: "progreso", servicioSlug: "seo" }),
-    ];
-  }
-  return [
-    mk(1, { titulo: "Brief de contenidos", prioridad: "alta", columna: "progreso", servicioSlug: "diseno-web" }),
-    mk(2, { titulo: "Logo y manual de marca", prioridad: "media", columna: "backlog", servicioSlug: "diseno-web" }),
-  ];
-};
-
-function loadAll(): Record<string, Tarea[]> {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-function saveAll(data: Record<string, Tarea[]>) {
-  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch { /* noop */ }
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function mapTarea(row: any): Tarea {
+  return {
+    id: row.id,
+    clinicaId: row.clinica_id,
+    titulo: row.titulo,
+    descripcion: row.descripcion ?? undefined,
+    prioridad: row.prioridad,
+    fechaEntrega: row.fecha_entrega ?? "",
+    columna: fromDbEstado(row.estado),
+    servicioSlug: row.servicio_slug ?? undefined,
+    entregableId: row.entregable_id ?? undefined,
+    createdBy: row.creado_por === "cliente" ? "client" : "agency",
+    createdAt: row.created_at,
+    comentarios: (row.tarea_comentarios ?? [])
+      .map((c: any) => ({
+        autor: c.autor,
+        rol: "agency" as const,
+        texto: c.texto,
+        fecha: c.created_at,
+      }))
+      .sort((a: Comentario, b: Comentario) => a.fecha.localeCompare(b.fecha)),
+  };
 }
 
 type Ctx = {
   tareas: Tarea[];
+  loading: boolean;
   add: (t: Omit<Tarea, "id" | "clinicaId" | "createdAt" | "comentarios">) => void;
   update: (id: string, patch: Partial<Tarea>) => void;
   remove: (id: string) => void;
@@ -91,67 +71,98 @@ const Context = createContext<Ctx | null>(null);
 
 export function TareasProvider({ children }: { children: ReactNode }) {
   const { activeClinic } = useSession();
+  const { user } = useAuth();
   const clinicaId = activeClinic.id;
-  const [store, setStore] = useState<Record<string, Tarea[]>>({});
+  const queryClient = useQueryClient();
+  const queryKey = ["tareas", clinicaId];
 
-  useEffect(() => {
-    const all = loadAll();
-    if (!all[clinicaId]) {
-      all[clinicaId] = seed(clinicaId);
-      saveAll(all);
-    }
-    setStore(all);
-  }, [clinicaId]);
+  const { data: tareas = [], isLoading } = useQuery({
+    queryKey,
+    enabled: !!clinicaId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("tareas")
+        .select("*, tarea_comentarios(*)")
+        .eq("clinica_id", clinicaId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map(mapTarea);
+    },
+  });
 
-  const persist = useCallback((next: Record<string, Tarea[]>) => {
-    setStore(next);
-    saveAll(next);
-  }, []);
+  const invalidate = () => queryClient.invalidateQueries({ queryKey });
 
-  const tareas = useMemo(() => store[clinicaId] ?? [], [store, clinicaId]);
+  const addMut = useMutation({
+    mutationFn: async (t: Omit<Tarea, "id" | "clinicaId" | "createdAt" | "comentarios">) => {
+      const { error } = await supabase.from("tareas").insert({
+        clinica_id: clinicaId,
+        titulo: t.titulo,
+        descripcion: t.descripcion ?? null,
+        prioridad: t.prioridad,
+        fecha_entrega: t.fechaEntrega || null,
+        estado: toDbEstado(t.columna) as never,
+        servicio_slug: (t.servicioSlug ?? "diseno-web") as never,
+        entregable_id: t.entregableId ?? null,
+        creado_por: t.createdBy === "client" ? "cliente" : "agencia",
+        created_by: user?.id ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
 
-  const add: Ctx["add"] = (t) => {
-    const tarea: Tarea = {
-      ...t,
-      id: `${clinicaId}-${Date.now()}`,
-      clinicaId,
-      createdAt: new Date().toISOString(),
-      comentarios: [],
-    };
-    persist({ ...store, [clinicaId]: [tarea, ...(store[clinicaId] ?? [])] });
-  };
+  const updateMut = useMutation({
+    mutationFn: async ({ id, patch }: { id: string; patch: Partial<Tarea> }) => {
+      const payload: Record<string, unknown> = {};
+      if (patch.titulo !== undefined) payload.titulo = patch.titulo;
+      if (patch.descripcion !== undefined) payload.descripcion = patch.descripcion || null;
+      if (patch.prioridad !== undefined) payload.prioridad = patch.prioridad;
+      if (patch.fechaEntrega !== undefined) payload.fecha_entrega = patch.fechaEntrega || null;
+      if (patch.columna !== undefined) payload.estado = toDbEstado(patch.columna);
+      if (patch.servicioSlug !== undefined) payload.servicio_slug = patch.servicioSlug;
+      if (patch.entregableId !== undefined) payload.entregable_id = patch.entregableId || null;
+      const { error } = await supabase.from("tareas").update(payload as never).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
 
-  const update: Ctx["update"] = (id, patch) => {
-    persist({
-      ...store,
-      [clinicaId]: (store[clinicaId] ?? []).map((t) => (t.id === id ? { ...t, ...patch } : t)),
-    });
-  };
+  const removeMut = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("tareas").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
 
-  const remove: Ctx["remove"] = (id) => {
-    persist({
-      ...store,
-      [clinicaId]: (store[clinicaId] ?? []).filter((t) => t.id !== id),
-    });
-  };
+  const commentMut = useMutation({
+    mutationFn: async ({ id, c }: { id: string; c: Omit<Comentario, "fecha"> }) => {
+      const { error } = await supabase.from("tarea_comentarios").insert({
+        tarea_id: id,
+        autor: c.autor,
+        texto: c.texto,
+        created_by: user?.id ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
 
-  const move: Ctx["move"] = (id, columna) => update(id, { columna });
-
-  const addComment: Ctx["addComment"] = (id, c) => {
-    const comentario: Comentario = { ...c, fecha: new Date().toISOString() };
-    persist({
-      ...store,
-      [clinicaId]: (store[clinicaId] ?? []).map((t) =>
-        t.id === id ? { ...t, comentarios: [...t.comentarios, comentario] } : t,
-      ),
-    });
-  };
-
-  return (
-    <Context.Provider value={{ tareas, add, update, remove, move, addComment }}>
-      {children}
-    </Context.Provider>
+  const value = useMemo<Ctx>(
+    () => ({
+      tareas,
+      loading: isLoading,
+      add: (t) => addMut.mutate(t),
+      update: (id, patch) => updateMut.mutate({ id, patch }),
+      remove: (id) => removeMut.mutate(id),
+      move: (id, columna) => updateMut.mutate({ id, patch: { columna } }),
+      addComment: (id, c) => commentMut.mutate({ id, c }),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tareas, isLoading, clinicaId],
   );
+
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 
 export function useTareas() {

@@ -1,4 +1,8 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/hooks/useSession";
+import { useAuth } from "@/hooks/useAuth";
 
 export type InvitationStatus = "pending_approval" | "approved" | "rejected";
 
@@ -13,16 +17,9 @@ export interface Invitation {
   decidedAt?: string;
 }
 
-const KEY = "mr.invitations.v1";
-
-function load(): Invitation[] {
-  try { const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : []; } catch { return []; }
-}
-function save(s: Invitation[]) { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* noop */ } }
-
 type Ctx = {
   invitations: Invitation[];
-  createInvitation: (input: { clinicaId: string; clinicaNombre: string; nombre: string; email: string }) => Invitation;
+  createInvitation: (input: { clinicaId: string; clinicaNombre: string; nombre: string; email: string }) => void;
   approveInvitation: (id: string) => void;
   rejectInvitation: (id: string) => void;
   deleteInvitation: (id: string) => void;
@@ -33,33 +30,80 @@ type Ctx = {
 const Context = createContext<Ctx | null>(null);
 
 export function InvitationsProvider({ children }: { children: ReactNode }) {
-  const [invitations, setInvitations] = useState<Invitation[]>([]);
+  const { clinicas } = useSession();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const queryKey = ["team_invitations"];
 
-  useEffect(() => { setInvitations(load()); }, []);
-
-  const persist = useCallback((next: Invitation[]) => { setInvitations(next); save(next); }, []);
-
-  const value = useMemo<Ctx>(() => ({
-    invitations,
-    createInvitation: ({ clinicaId, clinicaNombre, nombre, email }) => {
-      const inv: Invitation = {
-        id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-        clinicaId,
-        clinicaNombre,
-        nombre: nombre.trim(),
-        email: email.trim().toLowerCase(),
-        status: "pending_approval",
-        createdAt: new Date().toISOString(),
-      };
-      persist([inv, ...invitations]);
-      return inv;
+  const { data: invitations = [] } = useQuery({
+    queryKey,
+    enabled: !!user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_invitations")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((row): Invitation => ({
+        id: row.id,
+        clinicaId: row.clinica_id,
+        clinicaNombre:
+          clinicas.find((c) => c.id === row.clinica_id)?.nombreClinica ?? "",
+        nombre: row.nombre,
+        email: row.email,
+        status: row.status as InvitationStatus,
+        createdAt: row.created_at,
+        decidedAt: row.status === "pending_approval" ? undefined : row.updated_at,
+      }));
     },
-    approveInvitation: (id) => persist(invitations.map((i) => i.id === id ? { ...i, status: "approved", decidedAt: new Date().toISOString() } : i)),
-    rejectInvitation: (id) => persist(invitations.map((i) => i.id === id ? { ...i, status: "rejected", decidedAt: new Date().toISOString() } : i)),
-    deleteInvitation: (id) => persist(invitations.filter((i) => i.id !== id)),
-    forClinic: (clinicaId) => invitations.filter((i) => i.clinicaId === clinicaId),
-    pending: invitations.filter((i) => i.status === "pending_approval"),
-  }), [invitations, persist]);
+  });
+
+  const invalidate = () => queryClient.invalidateQueries({ queryKey });
+
+  const createMut = useMutation({
+    mutationFn: async (input: { clinicaId: string; nombre: string; email: string }) => {
+      const { error } = await supabase.from("team_invitations").insert({
+        clinica_id: input.clinicaId,
+        nombre: input.nombre.trim(),
+        email: input.email.trim().toLowerCase(),
+        status: "pending_approval",
+        invited_by: user?.id ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const statusMut = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: InvitationStatus }) => {
+      const { error } = await supabase.from("team_invitations").update({ status }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const deleteMut = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("team_invitations").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+  });
+
+  const value = useMemo<Ctx>(
+    () => ({
+      invitations,
+      createInvitation: ({ clinicaId, nombre, email }) =>
+        createMut.mutate({ clinicaId, nombre, email }),
+      approveInvitation: (id) => statusMut.mutate({ id, status: "approved" }),
+      rejectInvitation: (id) => statusMut.mutate({ id, status: "rejected" }),
+      deleteInvitation: (id) => deleteMut.mutate(id),
+      forClinic: (clinicaId) => invitations.filter((i) => i.clinicaId === clinicaId),
+      pending: invitations.filter((i) => i.status === "pending_approval"),
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [invitations],
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
